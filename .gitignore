@@ -1,2 +1,4 @@
 .idea/
 *.pyc
+*.hdf5
+data/
