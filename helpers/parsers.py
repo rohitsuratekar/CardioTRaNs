@@ -10,6 +10,7 @@ import os
 from constants import *
 from local.operations import LocalDatabase
 from models.zfin import *
+import pandas as pd
 
 
 def parse_zfin_anatomy_items() -> list:
@@ -45,20 +46,70 @@ def parse_stage_ontology() -> list:
     return models
 
 
+def parse_anatomy_relations() -> dict:
+    """
+    Parse anatomy relation file (FILE_ANATOMY_RELATIONSHIP) and returns the
+    list of items
+    :return: List of parent-child-relation information
+    """
+    relations = {}
+    with open(DATA_FOLDER + FILE_ANATOMY_RELATIONSHIP) as f:
+        for line in f:
+            items = line.strip().split("\t")
+            if len(items) == 3:
+                if items[0].startswith("ZFA"):  # Skips Header
+                    if items[2] == "part of":
+                        relations[items[1]] = items
+    return relations
+
+
+def parse_wt_expression():
+    """
+    Parse wild type expression data and converts it into list of
+    ZFINExpression objects
+    :return: List of ZFINExpression objects
+    """
+    stages = {}
+    for s in parse_stage_ontology():
+        stages[s.name] = s.id
+
+    exp = []
+    with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
+        for line in f:
+            items = line.strip().split("\t")
+            if len(items) == 15:
+                if items[0].startswith("ZDB"):  # Skips Header
+                    exp.append(ZFINExpression(items, stages))
+
+    return exp
+
+
+def test():
+    with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
+        df = pd.read_csv(f, sep="\t", skiprows=1)
+        print(df[df["Gene Symbol"] == "foxl1"])
+
+
 def make_database():
     """
     WARNING : DELETES the existing database and generates new.
     """
-    os.remove(DATABASE)
-    print("Existing database removed.")
-    print("Started Making Database...")
+    try:
+        os.remove(DATABASE)
+        print("Existing database removed.")
+    except FileNotFoundError:
+        print("Database not found...")
+
+    print("Started making new database...")
     db = LocalDatabase()
     db.add_anatomy_items(parse_zfin_anatomy_items())
-    print("Task 1 of 4 completed...")
+    print("Task 1 of 3 completed...")
     db.add_stages(parse_stage_ontology())
-    print("Construction of new Database successful")
+    print("Task 2 of 3 completed...")
+    db.add_expression_items(parse_wt_expression())
+    print("Task 3 of 3 completed...")
+    print("Construction of new database successful")
 
 
 def run():
-    db = LocalDatabase()
-    print(db.get_all_stages())
+    test()

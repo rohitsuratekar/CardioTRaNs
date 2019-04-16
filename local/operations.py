@@ -30,7 +30,6 @@ class LocalDatabase:
                 main.create_group(DB_ANATOMY)
                 main.create_group(DB_ANATOMY_RELATIONSHIPS)
                 main.create_group(DB_STAGE_ONTOLOGY)
-                main.create_group(DB_WILD_TYPE_EXP)
         except ValueError:
             pass
 
@@ -48,7 +47,6 @@ class LocalDatabase:
     def add_anatomy_items(self, items: list) -> None:
         """
         Adds anatomy item to the database
-        :param items: list of ZFINAnatomy objects
         """
 
         with h5py.File(DATABASE, self.__mode_writing) as db:
@@ -70,7 +68,6 @@ class LocalDatabase:
     def add_stages(self, items: list) -> None:
         """
         Adds Stage information into the database
-        :param items: List of ZFINStages objects
         """
         with h5py.File(DATABASE, self.__mode_writing) as db:
             st = db[DB_DATA][DB_STAGE_ONTOLOGY]
@@ -88,6 +85,34 @@ class LocalDatabase:
                 stage.attrs[DB_ATTRS_AUTHOR] = DATABASE_AUTHOR
                 stage.attrs[DB_ATTRS_VERSION] = DATABASE_VERSION
                 stage.attrs[DB_ATTRS_CREATION] = int(time.time())
+
+    def add_expression_items(self, items: list) -> None:
+        """
+        Adds expression information into database
+        """
+        with h5py.File(DATABASE, self.__mode_writing) as db:
+            expression = db[DB_DATA]
+            ex = expression.create_dataset(
+                DB_WILD_TYPE_EXP, (len(items), 13), maxshape=(None, None),
+                dtype=self.dt)
+            for i, item in enumerate(items):
+                ex[i, DB_EXP_ID] = item.id
+                ex[i, DB_EXP_SYMBOL] = item.gene_symbol
+                ex[i, DB_EXP_FISH_NAME] = item.fish_name
+                ex[i, DB_EXP_SUPER_STR_ID] = item.super_structure_id
+                ex[i, DB_EXP_SUB_STR_ID] = item.sub_structure_id
+                ex[i, DB_EXP_START_STAGE_ID] = item.start_stage_id
+                ex[i, DB_EXP_END_STAGE_ID] = item.end_stage_id
+                ex[i, DB_EXP_ASSAY] = item.assay
+                ex[i, DB_EXP_ASSAY_ID] = item.assay_mmo_id
+                ex[i, DB_EXP_PUBLICATION_ID] = item.publication_id
+                ex[i, DB_EXP_PROBE_ID] = item.probe_id
+                ex[i, DB_EXP_ANTIBODY_ID] = item.antibody_id
+                ex[i, DB_EXP_FISH_ID] = item.fish_id
+                # Add meta-data
+                ex.attrs[DB_ATTRS_AUTHOR] = DATABASE_AUTHOR
+                ex.attrs[DB_ATTRS_VERSION] = DATABASE_VERSION
+                ex.attrs[DB_ATTRS_CREATION] = int(time.time())
 
     def get_anatomy_item(self, anatomy_id: str) -> ZFINAnatomy:
         """
@@ -142,4 +167,28 @@ class LocalDatabase:
             item_ids.extend(db[DB_DATA][DB_STAGE_ONTOLOGY].keys())
             for i in item_ids:
                 items.append(self.get_stage(i))
+        return items
+
+    def get_all_expression_data(self) -> list:
+        """
+        :return: List of all expression data
+        """
+        items = []
+        with h5py.File(DATABASE, self.__mode_reading) as db:
+            for ex in db[DB_DATA][DB_WILD_TYPE_EXP]:
+                z = ZFINExpression.empty()
+                z.id = ex[DB_EXP_ID]
+                z.fish_name = ex[DB_EXP_FISH_NAME]
+                z.gene_symbol = ex[DB_EXP_SYMBOL]
+                z.super_structure_id = ex[DB_EXP_SUPER_STR_ID]
+                z.sub_structure_id = ex[DB_EXP_SUB_STR_ID]
+                z.start_stage_id = ex[DB_EXP_START_STAGE_ID]
+                z.end_stage_id = ex[DB_EXP_END_STAGE_ID]
+                z.assay = ex[DB_EXP_ASSAY]
+                z.assay_mmo_id = ex[DB_EXP_ASSAY_ID]
+                z.publication_id = ex[DB_EXP_PUBLICATION_ID]
+                z.probe_id = ex[DB_EXP_PROBE_ID]
+                z.fish_id = ex[DB_EXP_FISH_ID]
+                items.append(z)
+
         return items
