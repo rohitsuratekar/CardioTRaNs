@@ -7,27 +7,11 @@ All file parsers and converters
 
 import os
 
+import pandas as pd
+
 from constants import *
 from local.operations import LocalDatabase
 from models.zfin import *
-import pandas as pd
-
-
-def parse_zfin_anatomy_items() -> list:
-    """
-    Parse ZFIN anatomy file (FILE_ANATOMY_ITEMS) and convert into list of
-    ZFINAnatomy objects
-    :return: List of ZFINAnatomy object
-    """
-    models = []
-    with open(DATA_FOLDER + FILE_ANATOMY_ITEMS) as f:
-        for line in f:
-            items = line.strip().split("\t")
-            if len(items) == 4:
-                if items[0].startswith("ZFA"):  # Skips Header
-                    models.append(ZFINAnatomy(items))
-
-    return models
 
 
 def parse_stage_ontology() -> list:
@@ -50,7 +34,7 @@ def parse_anatomy_relations() -> dict:
     """
     Parse anatomy relation file (FILE_ANATOMY_RELATIONSHIP) and returns the
     list of items
-    :return: List of parent-child-relation information
+    :return: List of parent-child-relation information with child as a key
     """
     relations = {}
     with open(DATA_FOLDER + FILE_ANATOMY_RELATIONSHIP) as f:
@@ -61,6 +45,23 @@ def parse_anatomy_relations() -> dict:
                     if items[2] == "part of":
                         relations[items[1]] = items
     return relations
+
+
+def parse_zfin_anatomy_items() -> list:
+    """
+    Parse ZFIN anatomy file (FILE_ANATOMY_ITEMS) and convert into list of
+    ZFINAnatomy objects
+    :return: List of ZFINAnatomy object
+    """
+    models = []
+    with open(DATA_FOLDER + FILE_ANATOMY_ITEMS) as f:
+        for line in f:
+            items = line.strip().split("\t")
+            if len(items) == 4:
+                if items[0].startswith("ZFA"):  # Skips Header
+                    models.append(ZFINAnatomy(items, parse_anatomy_relations()))
+
+    return models
 
 
 def parse_wt_expression():
@@ -84,10 +85,12 @@ def parse_wt_expression():
     return exp
 
 
-def test():
+def get_expression_data_frame() -> pd.DataFrame:
+    """
+    :return: Pandas DataFrame of expression data
+    """
     with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
-        df = pd.read_csv(f, sep="\t", skiprows=1)
-        print(df[df["Gene Symbol"] == "foxl1"])
+        return pd.read_csv(f, sep="\t", skiprows=1)
 
 
 def make_database():
@@ -103,13 +106,11 @@ def make_database():
     print("Started making new database...")
     db = LocalDatabase()
     db.add_anatomy_items(parse_zfin_anatomy_items())
-    print("Task 1 of 3 completed...")
+    print("Task 1 of 2 completed...")
     db.add_stages(parse_stage_ontology())
-    print("Task 2 of 3 completed...")
-    db.add_expression_items(parse_wt_expression())
-    print("Task 3 of 3 completed...")
+    print("Task 2 of 2 completed...")
     print("Construction of new database successful")
 
 
 def run():
-    test()
+    make_database()

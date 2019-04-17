@@ -12,7 +12,7 @@ class ZFINAnatomy:
     Class to hold anatomy data
     """
 
-    def __init__(self, data: list):
+    def __init__(self, data: list, relationship: dict):
         """
         :param data: Columns from FILE_ANATOMY_ITEMS file
         """
@@ -22,6 +22,10 @@ class ZFINAnatomy:
         self.name = data[1].strip()
         self.start_stage_id = data[2].strip()
         self.end_stage_id = data[3].strip()
+        try:
+            self.parent_id = relationship[self.id][0]
+        except KeyError:
+            self.parent_id = self.id
 
     @classmethod
     def empty(cls):
