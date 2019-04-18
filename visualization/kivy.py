@@ -17,7 +17,9 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 
-p = palette.Palette(color_mode="rgb")
+from local.operations import LocalDatabase
+
+p = palette.Palette(color_mode="rgba")
 
 Builder.load_file('visualization/design.ky')
 
@@ -37,12 +39,9 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
     index = None
     selected = BooleanProperty(False)
     selectable = BooleanProperty(True)
-
-    r, g, b = p.gray(grade=10)
-    row_color_normal = (r, g, b, 1)
-
-    r, g, b = p.black()
-    row_color_selected = (r, g, b, 1)
+    mock_select = False
+    row_color_normal = p.gray(shade=40)
+    row_color_selected = p.black()
 
     def refresh_view_attrs(self, rv, index, data):
         """
@@ -67,37 +66,59 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
         """
         self.selected = is_selected
         if is_selected:
-            rv.add_data(index)
+            rv.item_selected(index)
+            print(index)
 
 
 class RV(RecycleView):
     selected_item = -1
-    r, g, b = p.gray()
-    base_color = (r, g, b, 1)
+    original_data = []
+    base_color = p.red()
 
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
-        for i in range(10):
+        db = LocalDatabase()
+        for i in db.get_all_anatomy_items():
             self.data.append({
-                "text": "initial {}".format(i),
+                "text": "{} : {}".format(i.id, i.name),
+                "is_selected": False,
                 "b_color": self.base_color}
             )
+        self.original_data = [x for x in self.data]
 
-    def add_data(self, item: int):
+    def item_selected(self, item: int):
         if self.selected_item != item:
-            # self.data.append({"text": "now", "b_color": self.base_color})
             self.selected_item = item
 
 
 class Test(BoxLayout):
-    r, g, b = p.cool_gray(grade=10)
-    box_background = (r, g, b, 1)
+    box_background = p.gray_cool(shade=10)
 
-    def add_data(self):
-        pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def on_search(text: str, rv: RV):
+        rv.selected_item = -1
+        new_data = []
+        if len(text.strip()) > 0:
+            for r in rv.original_data:
+                if text.strip().lower() in r["text"]:
+                    new_data.append(r)
+        else:
+            new_data.extend(rv.original_data)
+
+        rv.data = new_data
+
+    @staticmethod
+    def clear_search(text_input):
+        text_input.text = ""
 
 
 class TestApp(App):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def build(self):
         return Test()

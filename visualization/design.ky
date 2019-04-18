@@ -7,6 +7,10 @@
             pos: self.pos
             size: self.size
     color: (1,1,1,1) if self.selected else (0,0,0,1)
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+    padding_x: "20dp"
 <RV>:
     viewclass: 'SelectableLabel'
     SelectableRecycleBoxLayout:
@@ -27,24 +31,34 @@
             pos: self.pos
             size: self.size
     BoxLayout:
-        padding : "30dp"
-        orientation: 'vertical'
-        Label:
-            color: (0,0,0,1)
-            text: "Aha"
-            height: "40dp"
-            size_hint_y: None
+        orientation: 'horizontal'
         BoxLayout:
-            padding : "10dp"
-            height: "50dp"
-            size_hint_y: None
-            TextInput:
-                size_hint_x: 0.8
-                multiline: False
-                hint_text: "Search Here..."
+            padding : "30dp"
+            orientation: 'vertical'
+            Label:
+                color: (0,0,0,1)
+                text: "ZFIN Anatomy Structures"
+                height: "40dp"
+                size_hint_y: None
             BoxLayout:
-                size_hint_x: 0.02
-            Button:
-                size_hint_x: 0.1
-                text: "Search"
-        RV
+                padding : [0,"10dp"]
+                height: "50dp"
+                size_hint_y: None
+                TextInput:
+                    id: search_input
+                    size_hint_x: 0.7
+                    multiline: False
+                    hint_text: "Search Here..."
+                    on_text: root.on_search(self.text, root.ids.rv_list)
+                BoxLayout:
+                    size_hint_x: 0.02
+                Button:
+                    size_hint_x: 0.2
+                    text: "Clear"
+                    on_press: root.clear_search(root.ids.search_input)
+            RV:
+                id: rv_list
+                bar_color: (0,0,0,1)
+                bar_width: 6
+
+        BoxLayout:

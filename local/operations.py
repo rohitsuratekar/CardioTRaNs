@@ -51,7 +51,6 @@ class LocalDatabase:
 
         with h5py.File(DATABASE, self.__mode_writing) as db:
             ai = db[DB_DATA][DB_ANATOMY]
-            # Use maxshape None so that we can further add/remove columns
             for item in items:
                 anatomy = ai.create_dataset(
                     item.id, (1, 4), maxshape=(None, None), dtype=self.dt)
@@ -92,14 +91,14 @@ class LocalDatabase:
         :return: ZFINAnatomy Object
         :raises: KeyError if anatomy ID not found
         """
+        z = ZFINAnatomy()
         with h5py.File(DATABASE, self.__mode_reading) as db:
-            z = ZFINAnatomy.empty()
             z.id = anatomy_id
             ref = db[DB_DATA][DB_ANATOMY][z.id][0]
             z.name = ref[DB_ANATOMY_NAME]
             z.start_stage_id = ref[DB_ANATOMY_START_STAGE]
             z.end_stage_id = ref[DB_ANATOMY_END_STAGE]
-            return z
+        return z
 
     def get_stage(self, stage_id: str) -> ZFINStages:
         """
@@ -108,7 +107,7 @@ class LocalDatabase:
         :raises: KeyError if stage ID not found
         """
         with h5py.File(DATABASE, self.__mode_reading) as db:
-            z = ZFINStages.empty()
+            z = ZFINStages()
             z.id = stage_id
             ref = db[DB_DATA][DB_STAGE_ONTOLOGY][z.id][0]
             z.obo_id = ref[DB_STAGE_OBO_ID]
@@ -121,13 +120,14 @@ class LocalDatabase:
         """
         :return: All Anatomy items of the database
         """
-        items = []
+        anatomy_items = []
         with h5py.File(DATABASE, self.__mode_reading) as db:
             item_ids = []
             item_ids.extend(db[DB_DATA][DB_ANATOMY].keys())
             for i in item_ids:
-                items.append(self.get_anatomy_item(i))
-        return items
+                k = self.get_anatomy_item(i)
+                anatomy_items.append(k)
+        return anatomy_items
 
     def get_all_stages(self) -> list:
         """
