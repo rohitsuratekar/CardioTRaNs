@@ -2,7 +2,13 @@
 CardioTRaNs 2019
 Author: Rohit Suratekar
 
-All file parsers and converters
+All file parsers and converters.
+IMPORTANT: Check the column order in ZFIN files whenever you are using
+following parser functions. Following code is written based on column order
+present in April 2019.
+
+ZFA:0100000 entry was not available in FILE_ANATOMY_ITEMS, hence, it was
+added to the data-set while parsing the file
 """
 
 import os
@@ -54,13 +60,17 @@ def parse_zfin_anatomy_items() -> list:
     :return: List of ZFINAnatomy object
     """
     models = []
+    relations = parse_anatomy_relations()
     with open(DATA_FOLDER + FILE_ANATOMY_ITEMS) as f:
         for line in f:
             items = line.strip().split("\t")
             if len(items) == 4:
                 if items[0].startswith("ZFA"):  # Skips Header
-                    models.append(ZFINAnatomy(items, parse_anatomy_relations()))
+                    models.append(ZFINAnatomy(items, relations))
 
+    # Additional item for missing entries
+    models.append(ZFINAnatomy(["ZFA:0100000", "zebrafish anatomical entity",
+                               "None", "None"], relations))
     return models
 
 
@@ -88,9 +98,16 @@ def parse_wt_expression():
 def get_expression_data_frame() -> pd.DataFrame:
     """
     :return: Pandas DataFrame of expression data
+
+    IMPORTANT: Use proper number for "skiprows" variable. This will skip top
+    rows from the CSV file. As of April 2019, ZFIN have first line as a date
+    on which data file is downloaded and second line as a headers. Since we
+    are going to use our own column names, we will skip the column row.
+    However ALWAYS check if column order is correct before proceeding to use
+    this function for analysis.
     """
     with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
-        return pd.read_csv(f, sep="\t", skiprows=1)
+        return pd.read_csv(f, sep="\t", skiprows=2, names=COL_EXP_ALL)
 
 
 def make_database():

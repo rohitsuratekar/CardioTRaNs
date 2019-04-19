@@ -53,11 +53,12 @@ class LocalDatabase:
             ai = db[DB_DATA][DB_ANATOMY]
             for item in items:
                 anatomy = ai.create_dataset(
-                    item.id, (1, 4), maxshape=(None, None), dtype=self.dt)
+                    item.id, (1, 5), maxshape=(None, None), dtype=self.dt)
                 anatomy[0, DB_ANATOMY_ID] = item.id
                 anatomy[0, DB_ANATOMY_NAME] = item.name
                 anatomy[0, DB_ANATOMY_START_STAGE] = item.start_stage_id
                 anatomy[0, DB_ANATOMY_END_STAGE] = item.end_stage_id
+                anatomy[0, DB_ANATOMY_PARENT_ID] = item.parent_id
 
                 # Add meta-data
                 anatomy.attrs[DB_ATTRS_AUTHOR] = DATABASE_AUTHOR
@@ -98,6 +99,7 @@ class LocalDatabase:
             z.name = ref[DB_ANATOMY_NAME]
             z.start_stage_id = ref[DB_ANATOMY_START_STAGE]
             z.end_stage_id = ref[DB_ANATOMY_END_STAGE]
+            z.parent_id = ref[DB_ANATOMY_PARENT_ID]
         return z
 
     def get_stage(self, stage_id: str) -> ZFINStages:
