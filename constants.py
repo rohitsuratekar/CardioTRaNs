@@ -16,6 +16,7 @@ FILE_ANATOMY_ITEMS = "anatomy_item_2019.04.08.txt"
 FILE_ANATOMY_RELATIONSHIP = "anatomy_relationship_2019.04.08.txt"
 FILE_STAGE_ONTOLOGY = "stage_ontology_2019.04.08.txt"
 FILE_WILD_TYPE_EXPRESSION = "wildtype-expression_fish_2019.04.08.txt"
+FILE_DE_SEQ_GFP = "Supplement_Table_1.xlsx"
 
 # Column Names for Expression Files
 COL_EXP_0_GENE_ID = "gene_id"

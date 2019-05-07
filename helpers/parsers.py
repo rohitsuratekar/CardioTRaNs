@@ -129,5 +129,14 @@ def make_database():
     print("Construction of new database successful")
 
 
+def get_all_gr_expressed_data() -> pd.DataFrame:
+    """
+    Expression data from the supplement data of article Pawlak et. al. 2019
+    (Pubmed ID: 30760547)
+    :return: Pandas DataFrame
+    """
+    return pd.read_excel(DATA_FOLDER + FILE_DE_SEQ_GFP, skiprows=1)
+
+
 def run():
-    make_database()
+    get_all_gr_expressed_data()

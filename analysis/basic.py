@@ -83,6 +83,11 @@ def get_genes_from_structure(data: DataFrame, structures: list or str = None,
     # or parent column
 
     def check_if_exists(r):
+        """
+        Simple function to check if all the conditions are satisfied
+        :param r: Row
+        :return: True or False
+        """
         s1 = r[COL_EXP_4_SUPER_STR_NAME]
         s2 = r[COL_EXP_6_SUB_STR_NAME]
         s3 = r[parent]
@@ -106,14 +111,43 @@ def get_genes_from_structure(data: DataFrame, structures: list or str = None,
     data = data[bool_list].reset_index(drop=True)
     # Drop parent column which was made extra
     data = data.drop([parent], axis=1)
-    print(data)
     return data
 
 
+def get_gr_expressed_genes(hours: int) -> list:
+    if hours not in [24, 48, 72]:
+        raise Exception("Data is available only for 24, 48 and 72 hours")
+    df = get_all_gr_expressed_data()
+    # Get only required hour genes and drop items where gene symbol is not
+    # available
+
+    # NOTE: In published file "ZFIN_ID" is actually gene symbol
+    df = df[['ZFIN_ID', 'RNAseq_{}_plus_minus_log2FC'.format(hours)]].dropna()
+    df = df.reset_index(drop=True)  # Reset Index
+    return df['ZFIN_ID'].to_list()
+
+
+def show_structures_with(substring: str):
+    db = LocalDatabase()
+    # Get all anatomy items
+    anatomy_items = db.get_all_anatomy_items()
+    for s in anatomy_items:
+        if substring.lower().strip() in s.name.strip().lower():
+            print("{}: \t{}".format(s.id, s.name))
+
+
 def test():
-    data = get_expression_data_frame()
-    data_filtered = get_genes_for_hours(data, start_hour=15, end_hour=20)
-    get_genes_from_structure(data_filtered, ["heart", "cardio"])
+    data = parse_wt_expression()
+    structure = {x.id: x for x in parse_zfin_anatomy_items()}
+    for d in data:
+        if len(d.sub_structure_id.strip()) > 0:
+            try:
+                print(d.super_structure_id,
+                      structure[d.super_structure_id].name)
+                print(d.sub_structure_id, structure[d.sub_structure_id].name)
+                print("===")
+            except KeyError:
+                pass
 
 
 def run():
