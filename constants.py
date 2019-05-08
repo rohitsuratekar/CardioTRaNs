@@ -51,6 +51,15 @@ COL_EXP_ALL = [COL_EXP_0_GENE_ID,
                COL_EXP_13_ANTIBODY_ID,
                COL_EXP_14_FISH_ID]
 
+# Columns in Pawlak et. al. 2019 Sup Table 1
+
+COL_GR_S1_GENE_ID = "geneID"
+COL_GR_S1_GENE_SYMBOL = "ZFIN_ID"  # In original document, Gene Symbols are
+# wrongly labeled as ZFIN ID
+COL_GR_S1_24_LOG2FC = "RNAseq_24_plus_minus_log2FC"
+COL_GR_S1_48_LOG2FC = "RNAseq_48_plus_minus_log2FC"
+COL_GR_S1_72_LOG2FC = "RNAseq_72_plus_minus_log2FC"
+
 # Database Groups
 DB_DATA = "zfin_data"
 DB_ANATOMY = "anatomy"

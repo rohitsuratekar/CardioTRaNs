@@ -9,6 +9,7 @@ from collections import Counter
 
 import matplotlib.pylab as plt
 from SecretColors.palette import Palette
+from matplotlib_venn import venn2_unweighted
 
 from analysis.basic import *
 from helpers.parsers import *
@@ -116,8 +117,6 @@ def plot_with_filters(structures: list, star_time: float, end_time: float,
                                         end_hour=end_time)
     filtered_data = get_genes_from_structure(filtered_data, structures)
 
-    print(filtered_data)
-
     c = Counter(list(filtered_data[COL_EXP_1_GENE_SYMBOL]))
 
     names = []
@@ -128,16 +127,32 @@ def plot_with_filters(structures: list, star_time: float, end_time: float,
         values.append(k[1])
 
     ind = range(len(names))
-    plt.barh(ind, values, color=Palette().red(shade=90))
+    plt.barh(ind, values, color=Palette().red(shade=40))
     plt.yticks(ind, names)
     plt.xlabel("Number of expression data available in ZFIN")
     plt.ylabel("Gene Symbol")
-    plt.title("Top {} genes between {} - {} hpf\n(structures "
-              "with filtering terms {})".format(no_of_genes,
-                                                star_time, end_time,
-                                                structures))
+    # plt.title("Top {} genes between {} - {} hpf\n(structures "
+    #           "with filtering terms {})".format(no_of_genes,
+    #                                             star_time, end_time,
+    #                                             structures))
+    plt.show()
+
+
+def plot_zfin_gr_venn():
+    p = Palette()
+    zfin_data = get_expression_data_frame()
+    zfin_data = get_genes_from_structure(zfin_data, ["heart", "cardi"])
+    zfin_data = get_genes_for_hours(zfin_data, 48, 48)
+    gr_data = get_all_gr_expressed_data()
+    set1 = set(gr_data[COL_GR_S1_GENE_SYMBOL].values)
+    set2 = set(zfin_data[COL_EXP_1_GENE_SYMBOL].values)
+
+    c = venn2_unweighted([set1, set2], ('DESeq2', 'ZFIN'))
+    c.get_patch_by_id('10').set_color(p.cerulean())
+    c.get_patch_by_id('11').set_color(p.red())
+    c.get_patch_by_id('01').set_color(p.blue())
     plt.show()
 
 
 def run():
-    plot_with_filters(["heart", "cardi"], 48, 49)
+    plot_with_filters(structures=["heart", "cardi"], star_time=24, end_time=24)
