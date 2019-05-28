@@ -11,12 +11,14 @@ ZFA:0100000 entry was not available in FILE_ANATOMY_ITEMS, hence, it was
 added to the data-set while parsing the file
 """
 
+import csv
 import os
 
 import pandas as pd
 
 from constants import *
 from local.operations import LocalDatabase
+from models.ngs import *
 from models.zfin import *
 
 
@@ -138,5 +140,19 @@ def get_all_gr_expressed_data() -> pd.DataFrame:
     return pd.read_excel(DATA_FOLDER + FILE_DE_SEQ_GFP, skiprows=1)
 
 
+def get_rna_seq_gene_expression_data() -> list:
+    """
+    Gene Expression data from the TSV file output from StringTie program
+    :return: List of STGeneExpression objects
+    """
+    data = []
+    with open(DATA_FOLDER + FILE_RNA_SEQ_GENE_EXPRESSION) as f:
+        rd = csv.reader(f, delimiter="\t")
+        next(rd)  # Skip Header
+        for row in rd:
+            data.append(STGeneExpression(row))
+    return data
+
+
 def run():
-    get_all_gr_expressed_data()
+    get_rna_seq_gene_expression_data()
