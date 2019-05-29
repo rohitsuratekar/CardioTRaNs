@@ -2,4 +2,4 @@ numpy
 matplotlib
 h5py==2.8.0
 pandas==0.23.4
-SecretColors==1.0.0
+SecretColors==1.0.1

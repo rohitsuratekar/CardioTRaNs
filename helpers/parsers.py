@@ -140,13 +140,16 @@ def get_all_gr_expressed_data() -> pd.DataFrame:
     return pd.read_excel(DATA_FOLDER + FILE_DE_SEQ_GFP, skiprows=1)
 
 
-def get_rna_seq_gene_expression_data() -> list:
+def get_rna_seq_gene_expression_data(out_dataframe=False):
     """
     Gene Expression data from the TSV file output from StringTie program
-    :return: List of STGeneExpression objects
+    :param out_dataframe: If True, output will be pd.Dataframe
+    :return: List of STGeneExpression objects or pd.Dataframe
     """
     data = []
     with open(DATA_FOLDER + FILE_RNA_SEQ_GENE_EXPRESSION) as f:
+        if out_dataframe:
+            return pd.read_csv(f, delimiter="\t")
         rd = csv.reader(f, delimiter="\t")
         next(rd)  # Skip Header
         for row in rd:
