@@ -1,35 +1,26 @@
 """
-CardioTRaNs 2019
+Project: CardioTrans
 Author: Rohit Suratekar
+Year: 2019
 
-All file parsers and converters.
-IMPORTANT: Check the column order in ZFIN files whenever you are using
-following parser functions. Following code is written based on column order
-present in April 2019.
-
-ZFA:0100000 entry was not available in FILE_ANATOMY_ITEMS, hence, it was
-added to the data-set while parsing the file
+All file parsers and related functions should go here.
 """
-
-import csv
-import os
-
 import pandas as pd
 
-from constants import *
-from local.operations import LocalDatabase
-from models.ngs import *
-from models.zfin import *
+from constants.system_constants import *
+from constants.zfin_constants import COL_EXP_ALL
+from models.zfin_models import *
 
 
-def parse_stage_ontology() -> list:
+def get_zfin_stage_ontology() -> list:
     """
-    Parse ZFIN stage ontology file (FILE_STAGE_ONTOLOGY) and converts it into
-    list of ZFINStages objects
+    Parse ZFIN stage ontology file (FILE_ZFIN_STAGE_ONTOLOGY) and converts
+    it into list of ZFINStages objects
+
     :return: List of ZFINStages objects
     """
     models = []
-    with open(DATA_FOLDER + FILE_STAGE_ONTOLOGY) as f:
+    with open(DATA_FOLDER + FILE_ZFIN_STAGE_ONTOLOGY) as f:
         for line in f:
             items = line.strip().split("\t")
             if len(items) == 5:
@@ -38,14 +29,15 @@ def parse_stage_ontology() -> list:
     return models
 
 
-def parse_anatomy_relations() -> dict:
+def get_zfin_anatomy_relations() -> dict:
     """
-    Parse anatomy relation file (FILE_ANATOMY_RELATIONSHIP) and returns the
-    list of items
+    Parse anatomy relation file (FILE_ZFIN_ANATOMY_RELATIONSHIP) and returns
+    the list of items
+
     :return: List of parent-child-relation information with child as a key
     """
     relations = {}
-    with open(DATA_FOLDER + FILE_ANATOMY_RELATIONSHIP) as f:
+    with open(DATA_FOLDER + FILE_ZFIN_ANATOMY_RELATIONSHIP) as f:
         for line in f:
             items = line.strip().split("\t")
             if len(items) == 3:
@@ -55,15 +47,16 @@ def parse_anatomy_relations() -> dict:
     return relations
 
 
-def parse_zfin_anatomy_items() -> list:
+def get_zfin_anatomy_items() -> list:
     """
     Parse ZFIN anatomy file (FILE_ANATOMY_ITEMS) and convert into list of
     ZFINAnatomy objects
+
     :return: List of ZFINAnatomy object
     """
     models = []
-    relations = parse_anatomy_relations()
-    with open(DATA_FOLDER + FILE_ANATOMY_ITEMS) as f:
+    relations = get_zfin_anatomy_relations()
+    with open(DATA_FOLDER + FILE_ZFIN_ANATOMY_ITEMS) as f:
         for line in f:
             items = line.strip().split("\t")
             if len(items) == 4:
@@ -76,18 +69,19 @@ def parse_zfin_anatomy_items() -> list:
     return models
 
 
-def parse_wt_expression():
+def get_zfin_expression_objects():
     """
     Parse wild type expression data and converts it into list of
     ZFINExpression objects
+
     :return: List of ZFINExpression objects
     """
     stages = {}
-    for s in parse_stage_ontology():
+    for s in get_zfin_stage_ontology():
         stages[s.name] = s.id
 
     exp = []
-    with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
+    with open(DATA_FOLDER + FILE_ZFIN_EXPRESSION) as f:
         for line in f:
             items = line.strip().split("\t")
             if len(items) == 15:
@@ -97,65 +91,19 @@ def parse_wt_expression():
     return exp
 
 
-def get_expression_data_frame() -> pd.DataFrame:
+def get_zfin_expression_dataframe() -> pd.DataFrame:
     """
     :return: Pandas DataFrame of expression data
 
     IMPORTANT: Use proper number for "skiprows" variable. This will skip top
-    rows from the CSV file. As of April 2019, ZFIN have first line as a date
-    on which data file is downloaded and second line as a headers. Since we
-    are going to use our own column names, we will skip the column row.
-    However ALWAYS check if column order is correct before proceeding to use
-    this function for analysis.
+    rows from the CSV file. Check your csv file and use it accordingly.
+    ALWAYS check if column order is correct before proceeding to use this
+    function for analysis.
     """
-    with open(DATA_FOLDER + FILE_WILD_TYPE_EXPRESSION) as f:
-        return pd.read_csv(f, sep="\t", skiprows=2, names=COL_EXP_ALL)
-
-
-def make_database():
-    """
-    WARNING : DELETES the existing database and generates new.
-    """
-    try:
-        os.remove(DATABASE)
-        print("Existing database removed.")
-    except FileNotFoundError:
-        print("Database not found...")
-
-    print("Started making new database...")
-    db = LocalDatabase()
-    db.add_anatomy_items(parse_zfin_anatomy_items())
-    print("Task 1 of 2 completed...")
-    db.add_stages(parse_stage_ontology())
-    print("Task 2 of 2 completed...")
-    print("Construction of new database successful")
-
-
-def get_all_gr_expressed_data() -> pd.DataFrame:
-    """
-    Expression data from the supplement data of article Pawlak et. al. 2019
-    (Pubmed ID: 30760547)
-    :return: Pandas DataFrame
-    """
-    return pd.read_excel(DATA_FOLDER + FILE_DE_SEQ_GFP, skiprows=1)
-
-
-def get_rna_seq_gene_expression_data(out_dataframe=False):
-    """
-    Gene Expression data from the TSV file output from StringTie program
-    :param out_dataframe: If True, output will be pd.Dataframe
-    :return: List of STGeneExpression objects or pd.Dataframe
-    """
-    data = []
-    with open(DATA_FOLDER + FILE_RNA_SEQ_GENE_EXPRESSION) as f:
-        if out_dataframe:
-            return pd.read_csv(f, delimiter="\t")
-        rd = csv.reader(f, delimiter="\t")
-        next(rd)  # Skip Header
-        for row in rd:
-            data.append(STGeneExpression(row))
-    return data
+    with open(DATA_FOLDER + FILE_ZFIN_EXPRESSION) as f:
+        return pd.read_csv(f, delimiter="\t", skiprows=0, names=COL_EXP_ALL)
 
 
 def run():
-    get_rna_seq_gene_expression_data()
+    d = get_zfin_expression_dataframe()
+    print(d)

@@ -1,6 +1,7 @@
 """
-CardioTRaNs 2019
+Project: CardioTrans
 Author: Rohit Suratekar
+Year: 2019
 
 All models related ZFIN database
 Database columns can be found on https://zfin.org/downloads

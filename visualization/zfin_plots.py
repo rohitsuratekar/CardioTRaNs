@@ -9,14 +9,12 @@ from collections import Counter
 
 import matplotlib.pylab as plt
 from SecretColors.palette import Palette
-from matplotlib_venn import venn2_unweighted
 
-from analysis.basic import *
-from helpers.parsers import *
+from analysis.zfin_analysis import *
 
 
 def plot_expression_factors_wise(no_of_factors: int = 20):
-    data = get_expression_data_frame()
+    data = get_zfin_expression_dataframe()
     fc = Counter()
     p = Palette()
     for d in data[COL_EXP_1_GENE_SYMBOL]:
@@ -30,7 +28,7 @@ def plot_expression_factors_wise(no_of_factors: int = 20):
 
     ind = range(len(names))
 
-    plt.barh(ind, values, color=p.violet())
+    plt.barh(ind, values, color=p.aqua())
     plt.yticks(ind, names)
     plt.xlabel("Number of expression data available in ZFIN")
     plt.ylabel("Gene Symbol")
@@ -39,10 +37,10 @@ def plot_expression_factors_wise(no_of_factors: int = 20):
     plt.show()
 
 
-def plot_expression_structure_wise(no_of_structures):
-    data = get_expression_data_frame()
+def plot_expression_structure_wise(no_of_structures: int = 6):
+    data = get_zfin_expression_dataframe()
     fc = Counter()
-    p = Palette()
+    p = Palette("material")
     for d in data[COL_EXP_4_SUPER_STR_NAME]:
         fc.update({d})
 
@@ -64,8 +62,8 @@ def plot_expression_structure_wise(no_of_structures):
 
 
 def plot_expression_stage_wise():
-    data = get_expression_data_frame()
-    stage = parse_stage_ontology()
+    data = get_zfin_expression_dataframe()
+    stage = get_zfin_stage_ontology()
     stage = {x.name: x.start for x in stage}
     fc = Counter()
     p = Palette()
@@ -108,14 +106,13 @@ def plot_expression_stage_wise():
     plt.show()
 
 
-def plot_with_filters(structures: list, star_time: float, end_time: float,
+def plot_with_filters(structures: list, start_time: float, end_time: float,
                       no_of_genes: int = 20):
     # Get all data
-    data = get_expression_data_frame()
+    data = get_zfin_expression_dataframe()
     # Filter according to hours
-    filtered_data = get_genes_for_hours(data, start_hour=star_time,
-                                        end_hour=end_time)
-    filtered_data = get_genes_from_structure(filtered_data, structures)
+    filtered_data = filter_with_structure(data, structures)
+    filtered_data = filter_with_hours(filtered_data, start_time, end_time)
 
     c = Counter(list(filtered_data[COL_EXP_1_GENE_SYMBOL]))
 
@@ -131,28 +128,12 @@ def plot_with_filters(structures: list, star_time: float, end_time: float,
     plt.yticks(ind, names)
     plt.xlabel("Number of expression data available in ZFIN")
     plt.ylabel("Gene Symbol")
-    # plt.title("Top {} genes between {} - {} hpf\n(structures "
-    #           "with filtering terms {})".format(no_of_genes,
-    #                                             star_time, end_time,
-    #                                             structures))
-    plt.show()
-
-
-def plot_zfin_gr_venn():
-    p = Palette()
-    zfin_data = get_expression_data_frame()
-    zfin_data = get_genes_from_structure(zfin_data, ["heart", "cardi"])
-    zfin_data = get_genes_for_hours(zfin_data, 48, 48)
-    gr_data = get_all_gr_expressed_data()
-    set1 = set(gr_data[COL_GR_S1_GENE_SYMBOL].values)
-    set2 = set(zfin_data[COL_EXP_1_GENE_SYMBOL].values)
-
-    c = venn2_unweighted([set1, set2], ('DESeq2', 'ZFIN'))
-    c.get_patch_by_id('10').set_color(p.cerulean())
-    c.get_patch_by_id('11').set_color(p.red())
-    c.get_patch_by_id('01').set_color(p.blue())
+    plt.title("Top {} genes between {} - {} hpf\n(structures "
+              "with filtering terms {})".format(no_of_genes,
+                                                start_time, end_time,
+                                                structures))
     plt.show()
 
 
 def run():
-    plot_with_filters(structures=["heart", "cardi"], star_time=24, end_time=24)
+    plot_with_filters(["heart"], 16, 24)
