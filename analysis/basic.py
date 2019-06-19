@@ -137,17 +137,12 @@ def show_structures_with(substring: str):
 
 
 def test():
+    gene_name = "nkx2.5"
     data = parse_wt_expression()
-    structure = {x.id: x for x in parse_zfin_anatomy_items()}
+
     for d in data:
-        if len(d.sub_structure_id.strip()) > 0:
-            try:
-                print(d.super_structure_id,
-                      structure[d.super_structure_id].name)
-                print(d.sub_structure_id, structure[d.sub_structure_id].name)
-                print("===")
-            except KeyError:
-                pass
+        if gene_name == d.gene_symbol:
+            print(d.sub_structure_id)
 
 
 def run():

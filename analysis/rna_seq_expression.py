@@ -4,7 +4,6 @@ Author: Rohit Suratekar
 
 All functions related to analysis of RNA-seq data
 """
-from collections import defaultdict
 
 import matplotlib
 import matplotlib.pylab as plt
@@ -157,5 +156,12 @@ def map_all_chromosomes_bar(min_exp_percentage=0.01):
     plt.show()
 
 
+def check_gene(name:str):
+    for d in get_rna_seq_gene_expression_data():
+        if str(d.gene_name).lower() == name.strip().lower():
+            print(d.data)
+            print(d.tpm)
+
+
 def run():
-    map_all_chromosomes_bar(0.01)
+    check_gene("tbx5b")
