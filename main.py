@@ -1,3 +1,3 @@
-from visualization.zfin_plots import run
+from visualization.ngs_plots import run
 
 run()

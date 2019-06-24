@@ -5,6 +5,7 @@ Year: 2019
 
 All file parsers and related functions should go here.
 """
+
 import pandas as pd
 
 from constants.system_constants import *
@@ -104,6 +105,16 @@ def get_zfin_expression_dataframe() -> pd.DataFrame:
         return pd.read_csv(f, delimiter="\t", skiprows=0, names=COL_EXP_ALL)
 
 
+def get_rna_seq_gene_data():
+    """
+    Gene Expression data from the TSV file output from StringTie program
+    :param out_dataframe: If True, output will be pd.Dataframe
+    :return: List of STGeneExpression objects or pd.Dataframe
+    """
+    with open(DATA_FOLDER + FILE_RNA_SEQ_GENE_EXPRESSION) as f:
+        return pd.read_csv(f, delimiter="\t")
+
+
 def run():
-    d = get_zfin_expression_dataframe()
+    d = get_rna_seq_gene_data()
     print(d)

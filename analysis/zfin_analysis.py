@@ -13,29 +13,6 @@ from helpers.parsers import *
 pd.options.mode.chained_assignment = None
 
 
-def convert_to_zfin_object(data: pd.DataFrame) -> list:
-    """
-    Converts Pandas dataframe into ZFINExpression objects
-    :param data: Pandas.DataFrame
-    :return: List of ZFINExpression objects
-    """
-
-    exp_list = []
-
-    if data.empty:
-        return exp_list
-
-    stages = {s.name: s.id for s in get_zfin_stage_ontology()}
-
-    for d in data.iterrows():
-        row = []
-        for i in d[1]:
-            row.append(str(i))
-        exp_list.append(ZFINExpression(row, stages))
-
-    return exp_list
-
-
 def filter_with_gene(data: pd.DataFrame, gene: str,
                      allow_substring: bool = False) -> pd.DataFrame:
     """
@@ -43,6 +20,7 @@ def filter_with_gene(data: pd.DataFrame, gene: str,
 
     :param gene: Name of the gene
     :param data: Pandas DataFrame
+    :param allow_substring: If True, substring matches will be returned
     :return: Either Pandas DataFrame or List of ZFINExpression objects
     """
     if data.empty:
@@ -50,9 +28,12 @@ def filter_with_gene(data: pd.DataFrame, gene: str,
 
     if allow_substring:
         return data[
-            data[COL_EXP_1_GENE_SYMBOL].str.contains(gene.strip().lower())]
+            data[COL_EXP_1_GENE_SYMBOL].str.contains(
+                gene.strip().lower())].reset_index(drop=True)
 
-    return data[data[COL_EXP_1_GENE_SYMBOL] == gene.strip().lower()]
+    return data[
+        data[COL_EXP_1_GENE_SYMBOL] == gene.strip().lower()].reset_index(
+        drop=True)
 
 
 def filter_with_hours(
@@ -87,8 +68,7 @@ def filter_with_hours(
     # Bring back the names of the stages
     data[COL_EXP_7_START_STAGE] = data[COL_EXP_7_START_STAGE].apply(lambda v:
                                                                     v.name)
-    data = data.reset_index(drop=True)  # Reset the DataFrame indices
-    return data
+    return data.reset_index(drop=True)
 
 
 def filter_with_structure(data: pd.DataFrame, structures: list or str = None,
@@ -154,7 +134,7 @@ def filter_with_structure(data: pd.DataFrame, structures: list or str = None,
     data = data[bool_list].reset_index(drop=True)
     # Drop parent column which was made extra
     data = data.drop([parent], axis=1)
-    return data
+    return data.reset_index(drop=True)
 
 
 def run():
