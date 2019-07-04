@@ -8,6 +8,7 @@ All file parsers and related functions should go here.
 
 import pandas as pd
 
+from constants.ngs_constants import *
 from constants.system_constants import *
 from constants.zfin_constants import COL_EXP_ALL
 from models.zfin_models import *
@@ -105,16 +106,43 @@ def get_zfin_expression_dataframe() -> pd.DataFrame:
         return pd.read_csv(f, delimiter="\t", skiprows=0, names=COL_EXP_ALL)
 
 
-def get_rna_seq_gene_data():
+def get_specific_rna_seq(file_name: str):
     """
-    Gene Expression data from the TSV file output from StringTie program
-    :param out_dataframe: If True, output will be pd.Dataframe
-    :return: List of STGeneExpression objects or pd.Dataframe
+    Gene Expression data from specific file
+    :param file_name: Name of the file
+    :return: pd.Dataframe
     """
-    with open(DATA_FOLDER + FILE_RNA_SEQ_GENE_EXPRESSION) as f:
+    with open(DATA_FOLDER + file_name) as f:
         return pd.read_csv(f, delimiter="\t")
 
 
+def get_rna_seq_gene_data():
+    """
+    Gene Expression data from the TSV file output from StringTie program
+    :return: pd.Dataframe
+    """
+    return get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION1)
+
+
+def get_test():
+    d1 = get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION1)[
+        [COL_STRING_TIE_1_GENE_ID, COL_STRING_TIE_9_TPM]]
+    d2 = get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION2)[
+        [COL_STRING_TIE_1_GENE_ID, COL_STRING_TIE_9_TPM]]
+    d3 = d1.merge(d2, on=COL_STRING_TIE_1_GENE_ID, how="left")
+
+    # print(len(d3[COL_STRING_TIE_1_GENE_ID]))
+    # print(len(d3[COL_STRING_TIE_1_GENE_ID].unique()))
+
+    print(len(d1), len(d1[COL_STRING_TIE_1_GENE_ID].unique()))
+    print(len(d2), len(d2[COL_STRING_TIE_1_GENE_ID].unique()))
+
+
 def run():
-    d = get_rna_seq_gene_data()
-    print(d)
+    get_test()
+    # d1 = {'a': ['a1', 'a2', 'a3', 'a7'], 'b': [1, 2, 3, 7]}
+    # d2 = {'a': ['a3', 'a2', 'a5', 'a2'], 'b': [-1, -2, -3, -4]}
+    # d1 = pd.DataFrame(data=d1)
+    # d2 = pd.DataFrame(data=d2)
+    #
+    # print(d1.merge(d2.drop_duplicates(), on='a'))

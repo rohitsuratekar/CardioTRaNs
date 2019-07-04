@@ -104,8 +104,9 @@ def get_chromosome_with_gene(data: pd.DataFrame, gene: str) -> pd.DataFrame:
     return data
 
 
-def run():
-    data = get_rna_seq_gene_data()
-    data = get_chromosome_with_gene(data, "bmp10")
+def average_rna_seq():
+    d1 = get_rna_seq_gene_data()
 
-    print(data[COL_STRING_TIE_3_REFERENCE])
+
+def run():
+    average_rna_seq()

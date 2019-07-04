@@ -1,3 +1,3 @@
-from visualization.ngs_plots import run
+from helpers.parsers import run
 
 run()
