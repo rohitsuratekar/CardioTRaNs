@@ -1,3 +1,3 @@
-from helpers.parsers import run
+from analysis.ngs_analysis import run
 
 run()

@@ -104,9 +104,7 @@ def get_chromosome_with_gene(data: pd.DataFrame, gene: str) -> pd.DataFrame:
     return data
 
 
-def average_rna_seq():
-    d1 = get_rna_seq_gene_data()
-
-
 def run():
-    average_rna_seq()
+    d = get_rna_seq_gene_data()
+    d = filter_with_gene(d, "hand2")
+    print(d)

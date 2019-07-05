@@ -201,4 +201,4 @@ def map_given_genes(genes: list):
 
 
 def run():
-    map_given_genes(INTERESTED_GENES)
+    map_all_chromosomes_bar()
