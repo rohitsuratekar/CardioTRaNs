@@ -23,7 +23,7 @@ def visualize_single_chromosome(chromosome_no, genes: list,
     p = Palette()
 
     # Prepare data with filtering
-    data = get_rna_seq_gene_data()
+    data = get_rna_seq_data()
     data = filter_with_chromosome(data, chromosome_no)
     # Store maximum location
     max_pos = data[COL_STRING_TIE_6_END].max()
@@ -101,7 +101,7 @@ def visualize_single_chromosome(chromosome_no, genes: list,
 
 def map_all_chromosomes_bar(min_exp_percentage=0.01):
     p = Palette()
-    data = get_rna_seq_gene_data()
+    data = get_rna_seq_data()
     max_pos = data[COL_STRING_TIE_6_END].max()
     y_ticks = data[COL_STRING_TIE_3_REFERENCE].unique()
 
@@ -154,7 +154,7 @@ def map_all_chromosomes_bar(min_exp_percentage=0.01):
 
 def map_given_genes(genes: list):
     p = Palette()
-    data = get_rna_seq_gene_data()
+    data = get_rna_seq_data()
     max_pos = data[COL_STRING_TIE_6_END].max()
     y_ticks = data[COL_STRING_TIE_3_REFERENCE].unique()
 

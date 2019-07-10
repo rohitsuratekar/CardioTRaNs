@@ -6,11 +6,15 @@ Year: 2019
 All file parsers and related functions should go here.
 """
 
+import os.path
+
 import pandas as pd
 
+from constants.boolean_constants import *
 from constants.ngs_constants import *
 from constants.system_constants import *
 from constants.zfin_constants import COL_EXP_ALL
+from models.ngs_models import STGeneExpression
 from models.zfin_models import *
 
 
@@ -116,7 +120,7 @@ def get_specific_rna_seq(file_name: str):
         return pd.read_csv(f, delimiter="\t")
 
 
-def get_rna_seq_gene_data():
+def get_rna_seq_data() -> pd.DataFrame:
     """
     Gene Expression data from the TSV file output from StringTie program
 
@@ -176,23 +180,61 @@ def get_rna_seq_gene_data():
     m[COL_STRING_TIE_6_END] = m[COL_STRING_TIE_1_GENE_ID].apply(
         lambda x: data[x][4])
 
-    m.rename(columns={"avg": COL_STRING_TIE_9_TPM}, inplace=True)
-
+    m[COL_STRING_TIE_7_COVERAGE] = 0
+    m[COL_STRING_TIE_8_FPKM] = 0
+    m[COL_STRING_TIE_9_TPM] = m["avg"]
+    del m["avg"]
     return m
 
 
+def __generate_interested_gene_data():
+    """
+    Generates new files with only genes required for the Boolean Modelling
+    analysis.
+    """
+    data = get_rna_seq_data()
+    with open(DATA_FOLDER + FILE_RNA_SEQ, 'w') as f:
+        header = []
+        for a in data:
+            header.append(a)
+
+        header = "\t".join(header)
+        print(header, file=f)
+
+        for d in INTERESTED_GENES:
+            k = data[data[COL_STRING_TIE_2_GENE_NAME] == d]
+            if len(k.values) == 1:
+                print("\t".join([str(x) for x in k.values[0]]), file=f)
+            else:
+                raise Exception(
+                    "Zero or multiple gene found with {}".format(d))
+
+
+def get_boolean_genes() -> pd.DataFrame:
+    """
+    Takes the averaged data and make extra column with generated
+    STGeneExpression object
+    :return: pd.DataFrame
+    """
+
+    def _make_pandas_objects(df: pd.DataFrame):
+        if len(df.values) != 1:
+            print(df)
+            raise Exception("Only 1 gene is required for this conversion")
+        return STGeneExpression(df.values[0])
+
+    if not os.path.isfile(DATA_FOLDER + FILE_RNA_SEQ):
+        print("File doesn't exist and generating new")
+        __generate_interested_gene_data()
+
+    with open(DATA_FOLDER + FILE_RNA_SEQ) as f:
+        data = pd.read_csv(f, delimiter="\t")
+
+    data[BOOL_OBJ_COL] = data[COL_STRING_TIE_2_GENE_NAME].apply(
+        lambda c: _make_pandas_objects(
+            data[data[COL_STRING_TIE_2_GENE_NAME] == c]))
+    return data
+
+
 def run():
-    get_rna_seq_gene_data()
-    # d1 = {'a': ['a1', 'a2', 'a2', 'a5', 'a7'], 'b': [1, 2, 3, 7, 0]}
-    # d2 = {'a': ['a3', 'a2', 'a5', 'a8'], 'b': [-1, -2, -3, -4]}
-    # d1 = pd.DataFrame(data=d1)
-    # d2 = pd.DataFrame(data=d2)
-    #
-    # d2 = d2.set_index('a').T.to_dict('list')
-    # d2 = {x: d2[x][0] for x in d2}
-    #
-    # d1 = d1.set_index('a').T.to_dict('list')
-    # d1 = {x: d1[x][0] for x in d1}
-    #
-    # d1.update(d2)
-    # print(d1)
+    get_boolean_genes()

@@ -1,3 +1,3 @@
-from analysis.ngs_analysis import run
+from analysis.boolean_analysis import run
 
 run()

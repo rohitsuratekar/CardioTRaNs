@@ -9,7 +9,9 @@ All NGS analysis functions should go here.
 import pandas as pd
 
 from constants.ngs_constants import *
-from helpers.parsers import get_rna_seq_gene_data
+from constants.system_constants import *
+from constants.boolean_constants import *
+from helpers.parsers import get_rna_seq_data
 
 
 def filter_with_gene(data: pd.DataFrame, gene: str,
@@ -104,7 +106,24 @@ def get_chromosome_with_gene(data: pd.DataFrame, gene: str) -> pd.DataFrame:
     return data
 
 
+def save_average_data():
+    """
+    This saves average RNA-seq data into separate file so that can be easily
+    accessible while performing further analysis.
+    """
+    data = get_rna_seq_data()
+    with open(DATA_FOLDER + FILE_RNA_SEQ, 'w') as f:
+        header = []
+        for a in data:
+            header.append(a)
+
+        header = "\t".join(header)
+        print(header, file=f)
+
+        for gene in INTERESTED_GENES:
+            for i, d in filter_with_gene(data, gene).iterrows():
+                print("\t".join([str(x) for x in d.values]), file=f)
+
+
 def run():
-    d = get_rna_seq_gene_data()
-    d = filter_with_gene(d, "hand2")
-    print(d)
+    save_average_data()
