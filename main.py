@@ -1,3 +1,3 @@
-from analysis.boolean_analysis import run
+from visualization.ngs_plots import run
 
 run()

@@ -10,9 +10,11 @@ import numpy as np
 from SecretColors.palette import Palette, ColorMap
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+from scipy.stats import gaussian_kde
 
 from analysis.ngs_analysis import *
 from constants.boolean_constants import INTERESTED_GENES
+from helpers.parsers import get_specific_rna_seq
 
 
 def visualize_single_chromosome(chromosome_no, genes: list,
@@ -200,5 +202,37 @@ def map_given_genes(genes: list):
     plt.show()
 
 
+def plot_fpkm_tpm_density(filename: str):
+    """
+    Plots the FPKM and TPM density distributions
+    :param filename: File name of the Dataset
+    """
+    title = filename.split("/")[1].split("_")[0]
+    p = Palette()
+    data = get_specific_rna_seq(filename)
+    d = data[data[COL_STRING_TIE_8_FPKM] > 0][COL_STRING_TIE_8_FPKM].apply(
+        lambda x: np.log2(x))
+
+    d2 = data[data[COL_STRING_TIE_9_TPM] > 0][COL_STRING_TIE_9_TPM].apply(
+        lambda x: np.log2(x))
+
+    density1 = gaussian_kde(d)
+    density2 = gaussian_kde(d2)
+
+    _, r1, _ = plt.hist(d.values, 50, color=p.blue(shade=50), density=True)
+    _, r2, _ = plt.hist(d2.values, 50, color=p.red(shade=50), alpha=0.8,
+                        density=True)
+    plt.axvline(0, linestyle="--", color=p.black())
+    plt.plot(r1, density1(r1), linewidth=3, color=p.blue(shade=60),
+             label="FPKM")
+    plt.plot(r2, density2(r2), linewidth=3, color=p.red(shade=60),
+             label="TPM")
+    plt.legend(loc=0)
+    plt.xlabel("$Log_2$(Entity)")
+    plt.ylabel("Normalized Density")
+    plt.title("Dataset : {}".format(title))
+    plt.show()
+
+
 def run():
-    map_all_chromosomes_bar()
+    plot_fpkm_tpm_density(FILE_RNA_SEQ_GENE_EXPRESSION3)

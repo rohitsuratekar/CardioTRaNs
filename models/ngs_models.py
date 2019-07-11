@@ -23,3 +23,11 @@ class STGeneExpression:
         self.coverage = float(data[6])
         self.fpkm = float(data[7])
         self.tpm = float(data[8])
+
+    @property
+    def is_expressed(self) -> bool:
+        """
+        Checks if gene is expressed or not
+        :return: True if TPM is greater than 0
+        """
+        return self.tpm > 0
