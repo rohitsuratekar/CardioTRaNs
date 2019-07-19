@@ -129,9 +129,9 @@ def get_rna_seq_data() -> pd.DataFrame:
     """
 
     # Get all the data
-    d1 = get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION1)
-    d2 = get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION2)
-    d3 = get_specific_rna_seq(FILE_RNA_SEQ_GENE_EXPRESSION3)
+    d1 = get_specific_rna_seq(FILE_RNA_SEQ_24H_1)
+    d2 = get_specific_rna_seq(FILE_RNA_SEQ_24H_2)
+    d3 = get_specific_rna_seq(FILE_RNA_SEQ_20H_1)
 
     # Create the dataframe to calculate name dictionary
 
@@ -193,7 +193,7 @@ def __generate_interested_gene_data():
     analysis.
     """
     data = get_rna_seq_data()
-    with open(DATA_FOLDER + FILE_RNA_SEQ, 'w') as f:
+    with open(DATA_FOLDER + FILE_AVG_RNA_SEQ, 'w') as f:
         header = []
         for a in data:
             header.append(a)
@@ -223,11 +223,11 @@ def get_boolean_genes() -> pd.DataFrame:
             raise Exception("Only 1 gene is required for this conversion")
         return STGeneExpression(df.values[0])
 
-    if not os.path.isfile(DATA_FOLDER + FILE_RNA_SEQ):
+    if not os.path.isfile(DATA_FOLDER + FILE_AVG_RNA_SEQ):
         print("File doesn't exist and generating new")
         __generate_interested_gene_data()
 
-    with open(DATA_FOLDER + FILE_RNA_SEQ) as f:
+    with open(DATA_FOLDER + FILE_AVG_RNA_SEQ) as f:
         data = pd.read_csv(f, delimiter="\t")
 
     data[BOOL_OBJ_COL] = data[COL_STRING_TIE_2_GENE_NAME].apply(

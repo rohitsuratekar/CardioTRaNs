@@ -235,4 +235,4 @@ def plot_fpkm_tpm_density(filename: str):
 
 
 def run():
-    plot_fpkm_tpm_density(FILE_RNA_SEQ_GENE_EXPRESSION3)
+    plot_fpkm_tpm_density(FILE_RNA_SEQ_20H_1)

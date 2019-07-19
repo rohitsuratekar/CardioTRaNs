@@ -112,7 +112,7 @@ def save_average_data():
     accessible while performing further analysis.
     """
     data = get_rna_seq_data()
-    with open(DATA_FOLDER + FILE_RNA_SEQ, 'w') as f:
+    with open(DATA_FOLDER + FILE_AVG_RNA_SEQ, 'w') as f:
         header = []
         for a in data:
             header.append(a)
@@ -126,4 +126,6 @@ def save_average_data():
 
 
 def run():
-    save_average_data()
+    d = get_rna_seq_data()
+    d = filter_with_gene(d, "arr3b")
+    print(d)
