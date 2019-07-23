@@ -1,10 +1,11 @@
-"""
-Project: CardioTrans
-Author: Rohit Suratekar
-Year: 2019
+#  Project: CardioTrans
+#  Author: Rohit Suratekar
+#  Created On: 19/07/19, 2:12 PM
+#
+#  Copyright (c) 2019.
+#
+#  All system constants will go in this file
 
-This file should contain all system level constants
-"""
 
 DATA_FOLDER = "data/"
 
@@ -18,4 +19,8 @@ FILE_RNA_SEQ_24H_1 = "rna_seq/Z_24h_wt_SRX4720625.tsv"
 FILE_RNA_SEQ_24H_2 = "rna_seq/Z_24h_wt_SRX4720626.tsv"
 FILE_RNA_SEQ_48H_1 = "rna_seq/Z_48h_wt_SRX4720628.tsv"
 FILE_RNA_SEQ_48H_2 = "rna_seq/Z_24h_wt_SRX4720626.tsv"
-FILE_AVG_RNA_SEQ = "rna_seq/average_gene_expression.tsv"
+FILE_RNA_SEQ_72H_1 = "rna_seq/Z_72h_wt_SRX4720631.tsv"
+FILE_RNA_SEQ_72H_2 = "rna_seq/Z_72h_wt_SRX4720632.tsv"
+
+FILE_AVG_RNA_SEQ_24H = "rna_seq/average_24hpf.tsv"
+

@@ -1,3 +1,3 @@
-from analysis.boolean_analysis import run
+from helpers.parsers.ngs import run
 
 run()
