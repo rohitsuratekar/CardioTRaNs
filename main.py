@@ -1,3 +1,3 @@
-from helpers.parsers.ngs import run
+from visualization.ngs import run
 
 run()
