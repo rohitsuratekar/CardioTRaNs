@@ -22,5 +22,5 @@ FILE_RNA_SEQ_48H_2 = "rna_seq/Z_24h_wt_SRX4720626.tsv"
 FILE_RNA_SEQ_72H_1 = "rna_seq/Z_72h_wt_SRX4720631.tsv"
 FILE_RNA_SEQ_72H_2 = "rna_seq/Z_72h_wt_SRX4720632.tsv"
 
-FILE_AVG_RNA_SEQ_24H = "rna_seq/average_24hpf.tsv"
+FILE_BOOL_RNA_SEQ = "rna_seq/average_bool_"
 

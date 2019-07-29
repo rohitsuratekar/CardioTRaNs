@@ -1,3 +1,9 @@
+#  Project: CardioTrans
+#  Author: Rohit Suratekar
+#  Created On: 29/07/19, 10:00 AM
+#
+#  Copyright (c) 2019.
+
 import pandas as pd
 
 from constants.ngs import *

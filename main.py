@@ -1,3 +1,3 @@
-from visualization.ngs import run
+from visualization.boolean import run
 
 run()

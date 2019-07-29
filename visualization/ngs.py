@@ -1,7 +1,15 @@
+#  Project: CardioTrans
+#  Author: Rohit Suratekar
+#  Created On: 29/07/19, 10:00 AM
+#
+#  Copyright (c) 2019.
+#
+# All functions related to NGS analysis will go here
+
 import matplotlib
 import matplotlib.pylab as plt
 import numpy as np
-from SecretColors.palette import Palette, ColorMap
+from SecretColors import Palette, ColorMap
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from scipy.stats import gaussian_kde
@@ -12,7 +20,17 @@ from helpers.parsers.ngs import get_rna_seq_data
 
 
 def visualize_single_chromosome(hour: int, chromosome_no, genes: list,
-                                max_size: int = 100):
+                                tpm_cutoff=0, max_size: int = 100):
+    """
+    Visualize single chromosome by showing gene locations on that chromosome
+    :param hour: Hour post fertilization
+    :param chromosome_no: Chromosome number
+    :param genes: Genes to visualize (if any)
+    :param tpm_cutoff: This cut off will be used to plot number of genes
+    histogram at the bottom
+    :param max_size: Maximum width in arbitrary units
+    """
+
     chrome_y_loc = 0
     chrome_height = 0.3
     gene_onset = 0.3
@@ -85,8 +103,9 @@ def visualize_single_chromosome(hour: int, chromosome_no, genes: list,
                  linestyle="--", color=p.gray())
         ax2.axvline(g[1], linestyle="--", color=p.gray())
 
-    plt.hist(data[COL_STRING_TIE_5_START], 200, color=p.blue(shade=30))
-    plt.ylabel("No of genes")
+    data = data[data[COL_STRING_TIE_9_TPM] > tpm_cutoff]
+    plt.hist(data[COL_STRING_TIE_5_START], 200, color=p.blue(shade=40))
+    plt.ylabel("No of genes (with TPM > {})".format(tpm_cutoff))
     plt.xticks(x_ticks,
                ["{:.2f} MB".format(x * max_pos / (100 * 1000000)) for x in
                 x_ticks])
@@ -95,7 +114,15 @@ def visualize_single_chromosome(hour: int, chromosome_no, genes: list,
     plt.show()
 
 
-def map_all_chromosomes_bar(hour: int, min_exp_percentage=0.01):
+def map_all_chromosomes_bar(hour: int, tpm_percentage_cutoff=0.01):
+    """
+    Plots all 25 chromosomes plus mitochondrial chromosomes
+
+    :param hour: Hours post fertilization
+    :param tpm_percentage_cutoff: Only genes greater than this cutoff will be
+    considered for plotting. Each cutoff is calculated individually for
+    every chromosome.
+    """
     p = Palette()
     data = get_rna_seq_data(hour)
     max_pos = data[COL_STRING_TIE_6_END].max()
@@ -128,7 +155,7 @@ def map_all_chromosomes_bar(hour: int, min_exp_percentage=0.01):
         for i, row in temp_d.iterrows():
             start = row[COL_STRING_TIE_5_START]
             end = row[COL_STRING_TIE_6_END]
-            if row[COL_STRING_TIE_9_TPM] > min_exp_percentage:
+            if row[COL_STRING_TIE_9_TPM] > tpm_percentage_cutoff:
                 plt.broken_barh([(start, end - start)], y_loc,
                                 color=c(row[COL_STRING_TIE_9_TPM]))
 
@@ -144,11 +171,16 @@ def map_all_chromosomes_bar(hour: int, min_exp_percentage=0.01):
                 x_ticks])
     plt.xlabel("Position")
     plt.title("TPM greater than {} % of largest per chromosome at {} "
-              "hpf".format(min_exp_percentage, hour))
+              "hpf".format(tpm_percentage_cutoff, hour))
     plt.show()
 
 
 def map_given_genes(hour: int, genes: list):
+    """
+    Shows location of given gene on the chromosome plot
+    :param hour: Hours post fertilization
+    :param genes: List of genes to map
+    """
     p = Palette()
     data = get_rna_seq_data(hour)
     max_pos = data[COL_STRING_TIE_6_END].max()
@@ -227,6 +259,10 @@ def plot_fpkm_tpm_density(hour: int):
 
 
 def plot_single_gene_expression(gene: str):
+    """
+    Shows expression parameters for given gene
+    :param gene: Name of genes
+    """
     p = Palette()
     hours = [24, 48, 72]
     data = [get_rna_seq_data(x) for x in hours]
@@ -251,6 +287,11 @@ def plot_single_gene_expression(gene: str):
 
 
 def plot_expression_series(genes: list):
+    """
+    Show how given gene changes their TPM values over the developmental time
+    point
+    :param genes: List of genes
+    """
     p = Palette(allow_gray_shades=True)
     hours = [24, 48, 72]
     h_data = [get_rna_seq_data(x) for x in hours]
@@ -273,7 +314,75 @@ def plot_expression_series(genes: list):
     plt.show()
 
 
+def chromosome_activity(chromosome_number: int, tpm_cutoff=0, divisions=100):
+    """
+    Plots gene expression activity of given chromosome in the form of TPM in
+    given bins
+
+    :param chromosome_number: Chromosome number
+    :param tpm_cutoff: All genes below this TPM cut off will be discarded
+    :param divisions: Number of divisions in which chromosome will be
+    divided or binned to check total TPM values
+    """
+    p = Palette()
+    hours = [24, 48, 72]
+    colors = [p.cyan(), p.yellow(shade=40), p.magenta()]
+
+    dv = np.linspace(0, 100, divisions)
+    temp_name = "temp"
+    max_pos = 0
+
+    def _format_column(n):
+        return min(dv, key=lambda x: abs(x - n))
+
+    def _format_data(h):
+        genes1 = {}
+        d = get_rna_seq_data(h)
+        d = filter_with_chromosome(d, chromosome_number)
+
+        for g in INTERESTED_GENES:
+            f = filter_with_gene(d, g)
+            if len(f) == 1:
+                genes1[g] = f[COL_STRING_TIE_5_START].values[0]
+
+        d = d[d[COL_STRING_TIE_9_TPM] > tpm_cutoff]
+        max_loc = d[COL_STRING_TIE_6_END].max()
+        d[COL_STRING_TIE_5_START] = d[COL_STRING_TIE_5_START] * 100 / max_loc
+        d[temp_name] = d[COL_STRING_TIE_5_START].apply(_format_column)
+        d = d.groupby(by=temp_name).sum()
+        d = d.reset_index()
+        return d, max_loc, genes1
+
+    genes = None
+    for i, hr in enumerate(hours):
+        data, max_pos, genes = _format_data(hr)
+        plt.plot(data[temp_name], data[COL_STRING_TIE_9_TPM], marker="o",
+                 label="{} hpf".format(hr), color=colors[i])
+
+    if genes is not None:
+        for k in genes:
+            loc = genes[k] * 100 / max_pos
+            plt.axvline(loc, linestyle="--", color=p.gray())
+
+            plt.text((genes[k] / max_pos), 0.9, k,
+                     horizontalalignment='center',
+                     verticalalignment='center',
+                     bbox=dict(facecolor=p.gray(shade=10)),
+                     transform=plt.gca().transAxes)
+
+    x_ticks = np.linspace(0, 100, 10)
+    plt.xticks(x_ticks,
+               ["{:.2f} MB".format(x * max_pos / (100 * 1000000)) for x in
+                x_ticks])
+    plt.legend(loc=0)
+    plt.ylabel("TPM")
+    plt.title("Chromosome {} (Divisions = {}, TPM > {})".format(
+        chromosome_number, divisions, tpm_cutoff))
+    plt.show()
+
+
 def run():
-    # visualize_single_chromosome(24, 14, INTERESTED_GENES)
+    # visualize_single_chromosome(24, 14, INTERESTED_GENES, tpm_cutoff=1)
     plot_expression_series(BASE_GENES)
-    # plot_single_gene_expression("nkx2.5")
+    # chromosome_activity(1)
+    # test()
