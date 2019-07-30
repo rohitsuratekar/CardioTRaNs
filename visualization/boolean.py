@@ -18,7 +18,12 @@ from analysis.boolean import is_expressed
 from constants.boolean import INTERESTED_GENES
 
 
-def boolean_expression_pattern(genes: list, exp_hours: list):
+def boolean_rna_seq_exp(genes: list, exp_hours: list):
+    """
+    Plots the gene expression data collected from the RNA-seq data.
+    :param genes: List of genes to be visualize
+    :param exp_hours: Hours post fertilization timing list
+    """
     p = Palette()
     on_color = p.blue()
     off_color = p.red()
@@ -32,10 +37,11 @@ def boolean_expression_pattern(genes: list, exp_hours: list):
     full = []
     for h in exp_hours:
         full.append(exp[h])
-    fig, ax = plt.subplots()
     full = np.asarray(full).astype(int)
-    plt.pcolormesh(full.T, edgecolors=p.blue(shade=10), linewidth=0.1,
-                   cmap=cmap)
+
+    fig, ax = plt.subplots()
+    plt.pcolormesh(full.T, edgecolors=p.blue(shade=10),
+                   linewidth=0.1, cmap=cmap)
     ax.set_aspect('0.4')
     ax.set_xticks(np.arange(0, len(exp_hours)) + 0.5)
     ax.set_yticks(np.arange(0, len(genes)) + 0.5)
@@ -52,4 +58,4 @@ def boolean_expression_pattern(genes: list, exp_hours: list):
 
 
 def run():
-    boolean_expression_pattern(INTERESTED_GENES, [20, 24, 48, 72])
+    boolean_rna_seq_exp(INTERESTED_GENES, [20, 24, 48, 72])

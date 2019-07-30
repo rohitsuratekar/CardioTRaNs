@@ -1,3 +1,3 @@
-from visualization.boolean import run
+from analysis.zfin import run
 
 run()
