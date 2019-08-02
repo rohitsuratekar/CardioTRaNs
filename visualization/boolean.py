@@ -16,6 +16,7 @@ from matplotlib.patches import Patch
 
 from analysis.boolean import is_expressed
 from constants.boolean import INTERESTED_GENES
+from constants.system import PLOT_FOLDER
 
 
 def boolean_rna_seq_exp(genes: list, exp_hours: list):
@@ -25,8 +26,8 @@ def boolean_rna_seq_exp(genes: list, exp_hours: list):
     :param exp_hours: Hours post fertilization timing list
     """
     p = Palette()
-    on_color = p.blue()
-    off_color = p.red()
+    on_color = p.peach(shade=40)
+    off_color = p.violet(shade=70)
     cmap = ColorMap(matplotlib, p).from_list([off_color, on_color],
                                              is_qualitative=True)
     exp = defaultdict(list)
@@ -40,13 +41,16 @@ def boolean_rna_seq_exp(genes: list, exp_hours: list):
     full = np.asarray(full).astype(int)
 
     fig, ax = plt.subplots()
-    plt.pcolormesh(full.T, edgecolors=p.blue(shade=10),
-                   linewidth=0.1, cmap=cmap)
-    ax.set_aspect('0.4')
+    plt.pcolormesh(full.T, edgecolor=p.gray(shade=70),
+                   linewidth=0.05, cmap=cmap)
+    ax.set_aspect(1.2)
     ax.set_xticks(np.arange(0, len(exp_hours)) + 0.5)
     ax.set_yticks(np.arange(0, len(genes)) + 0.5)
-    ax.set_xticklabels(["{} hpf".format(x) for x in exp_hours])
+    ax.set_xticklabels(["{}".format(x) for x in exp_hours], rotation=45,
+                       ha="left")
     ax.set_yticklabels([str(x).capitalize() for x in genes])
+    plt.xlabel("Hours Post Fertilization")
+    ax.xaxis.set_label_position('top')
     ax.xaxis.set_ticks_position('top')
     # ax.set_title("RNA-seq Boolean Conditions", y=1.08)
     legend_elements = [Patch(facecolor=on_color, label='ON'),
@@ -54,8 +58,11 @@ def boolean_rna_seq_exp(genes: list, exp_hours: list):
     ax.legend(handles=legend_elements, loc='upper center',
               bbox_to_anchor=(0.5, -0.05), fancybox=True, ncol=2)
     plt.tight_layout()
+
+    plt.savefig(PLOT_FOLDER + "rna_seq_gene_expression.png", dpi=300,
+                type="png")
     plt.show()
 
 
 def run():
-    boolean_rna_seq_exp(INTERESTED_GENES, [20, 24, 48, 72])
+    boolean_rna_seq_exp(INTERESTED_GENES, [24, 48, 72])

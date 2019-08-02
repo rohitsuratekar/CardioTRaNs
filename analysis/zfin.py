@@ -10,6 +10,27 @@ from constants.zfin import *
 from helpers.parsers.zfin import *
 
 
+def filter_by_genes(data: pd.DataFrame, genes: list,
+                    allow_substring: bool = False):
+    """
+    Filters pandas DataFrames with gene symbols
+    :param data: pd.DataFrame
+    :param genes: List of Gene Symbol
+    :param allow_substring: If True, substring matches will also be returned
+    :return: pd.DataFrame after filtering
+    """
+
+    if data.empty:
+        return data
+
+    if allow_substring:
+        return data[
+            data[COL_EXP_1_GENE_SYMBOL].str.contains(
+                "|".join(genes).lower(), )].reset_index(drop=True)
+    return data[data[COL_EXP_1_GENE_SYMBOL].isin(genes)].reset_index(
+        drop=True)
+
+
 def filter_by_gene(data: pd.DataFrame, gene: str,
                    allow_substring: bool = False):
     """
@@ -146,5 +167,7 @@ def filter_by_structure(data: pd.DataFrame, structures: list,
 
 def run():
     d = get_wt_expression()
-    d = filter_by_structure(d, ["heart", "liver"], exact=False)
-    print(d[COL_EXP_4_SUPER_STR_NAME])
+    d = filter_by_structure(d, ["heart", "cardi"], exact=False)
+    d = filter_by_start_time(d, 24, tolerance=0)
+    d = filter_by_gene(d, "nkx2.5")
+    print(d)

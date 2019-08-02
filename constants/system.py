@@ -8,6 +8,7 @@
 
 
 DATA_FOLDER = "data/"
+PLOT_FOLDER = "plots/"
 
 FILE_ZFIN_EXPRESSION = "zfin/wildtype-expression_fish_2019.07.27.txt"
 FILE_ZFIN_ANATOMY_ITEMS = "zfin/anatomy_item_2019.07.27.txt"
