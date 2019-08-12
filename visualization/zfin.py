@@ -6,12 +6,15 @@
 #
 # All visualization related to ZFIN database
 
+from collections import defaultdict
+
 import matplotlib
 import matplotlib.pylab as plt
 import numpy as np
 from SecretColors import Palette, ColorMap
 from matplotlib.patches import Patch
 
+from analysis.boolean import is_expressed
 from analysis.zfin import *
 from constants.boolean import *
 from constants.zfin import *

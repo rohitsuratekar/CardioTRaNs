@@ -3,3 +3,4 @@
 *.hdf5
 data/
 venv/
+plots/

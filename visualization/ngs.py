@@ -13,9 +13,10 @@ from SecretColors import Palette, ColorMap
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from scipy.stats import gaussian_kde
-
+from collections import defaultdict
 from analysis.ngs import *
 from constants.boolean import *
+from constants.system import *
 from helpers.parsers.ngs import get_rna_seq_data
 
 
@@ -379,6 +380,8 @@ def chromosome_activity(chromosome_number: int, tpm_cutoff=0, divisions=100):
     plt.title("Chromosome {} (Divisions = {}, TPM > {})".format(
         chromosome_number, divisions, tpm_cutoff))
     plt.show()
+
+
 
 
 def run():
