@@ -16,34 +16,38 @@ from constants.system import DATA_FOLDER, FILE_BOOL_RNA_SEQ
 from helpers.parsers.ngs import get_rna_seq_data
 
 
-def _make_boolean_file(hour: int):
+def _make_boolean_file(hour: int, genotype: str):
     """
     Generates smaller version of .tsv file so that it can be loaded quickly.
     This will include only genes present in INTERESTED_GENES constant
     :param hour: Hours post fertilization
     """
-    d = get_rna_seq_data(hour)
+
+    d = get_rna_seq_data(hour, genotype)
     d = d[d[COL_STRING_TIE_2_GENE_NAME].isin(INTERESTED_GENES)]
-    with open("{}{}{}.tsv".format(DATA_FOLDER, FILE_BOOL_RNA_SEQ, hour
-                                  ), "w") as f:
+    with open("{}{}{}_{}.tsv".format(DATA_FOLDER, FILE_BOOL_RNA_SEQ, hour,
+                                     genotype.lower().strip()), "w") as f:
         d.to_csv(f, sep="\t", index=False)
 
 
-def get_boolean_expression(hour: int, override: bool = False) -> pd.DataFrame:
+def get_boolean_expression(hour: int, genotype: str, override: bool = False) \
+        -> pd.DataFrame:
     """
     Generates files used in Boolean Modelling if needed and returns smaller
     pandas DataFrame which can be easily loaded in memory for further analysis.
 
     :param hour: Hour Post Fertilization
+    :param genotype: Genotype of the data
     :param override: If True, then file will be regenerated
     :return: Pandas DataFrame
     """
-    path = "{}{}{}.tsv".format(DATA_FOLDER, FILE_BOOL_RNA_SEQ, hour)
+    path = "{}{}{}_{}.tsv".format(DATA_FOLDER, FILE_BOOL_RNA_SEQ, hour,
+                                  genotype.lower().strip())
     if not Path(path).is_file() or override:
-        _make_boolean_file(hour)
+        _make_boolean_file(hour, genotype)
     with open(path) as f:
         return pd.read_csv(f, delimiter="\t")
 
 
 def run():
-    get_boolean_expression(24)
+    get_boolean_expression(24, "wt")

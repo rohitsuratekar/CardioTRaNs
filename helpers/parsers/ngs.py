@@ -12,39 +12,53 @@ from constants.ngs import *
 from constants.system import *
 
 
-def _get_ngs_file_names(hour: int, all_files: bool = True):
+def _get_ngs_file_names(hour: int, genotype: str, all_files: bool = True):
     """Returns files based on hour of development
 
     This is simple function which returns file(s) names based on hour provided
     Currently supports 20, 24, 48 and 72 hpf
 
-    >>> _get_ngs_file_names(24) # Returns list of files available for 24hpf
+    >>> _get_ngs_file_names(24, "wt")
+    >>> # Returns list of files available for 24hpf for wild type
 
     :param hour: Hour Post Fertilization
     :param all_files: If True, all available files in that hours are
     returned as a list. If False, only single file is returned
     :return: Single file name or list of file names
     """
+
+    g = genotype.strip().lower()
+
     if hour == 20:
-        return FILE_RNA_SEQ_20H_1
+        if g == GENOTYPE_WT:
+            return FILE_RNA_SEQ_20H_1
     if hour == 24:
-        if all_files:
-            return [FILE_RNA_SEQ_24H_1, FILE_RNA_SEQ_24H_2]
-        else:
-            return FILE_RNA_SEQ_24H_1
+        if g == GENOTYPE_WT:
+            if all_files:
+                return [FILE_RNA_SEQ_24H_1, FILE_RNA_SEQ_24H_2]
+            else:
+                return FILE_RNA_SEQ_24H_1
     if hour == 48:
-        if all_files:
-            return [FILE_RNA_SEQ_48H_1, FILE_RNA_SEQ_48H_2]
-        else:
-            return FILE_RNA_SEQ_48H_1
+        if g == GENOTYPE_WT:
+            if all_files:
+                return [FILE_RNA_SEQ_48H_1, FILE_RNA_SEQ_48H_2]
+            else:
+                return FILE_RNA_SEQ_48H_1
     if hour == 72:
-        if all_files:
-            return [FILE_RNA_SEQ_72H_1, FILE_RNA_SEQ_72H_2]
-        else:
-            return FILE_RNA_SEQ_72H_1
+        if g == GENOTYPE_WT:
+            if all_files:
+                return [FILE_RNA_SEQ_72H_1, FILE_RNA_SEQ_72H_2]
+            else:
+                return FILE_RNA_SEQ_72H_1
+        elif g == GENOTYPE_GATA5:
+            if all_files:
+                return [FILE_MT_GATA5_72H_1, FILE_MT_GATA5_72H_2]
+            else:
+                return FILE_MT_GATA5_72H_1
 
     raise Exception(
-        "File is not available for this hour. Try 20, 24, 48 or 72")
+        "File is not available for this hour ({}) and genotype ({}) "
+        "combination".format(hour, genotype))
 
 
 def convert_to_dataframe(files):
@@ -136,13 +150,15 @@ def average_data(data: list):
     return f
 
 
-def get_rna_seq_data(hour: int):
+def get_rna_seq_data(hour: int, genotype: str):
     """ Returns average RNA-seq data for given hour
+    :param genotype: Genotype of the data
     :param hour: Hour post fertilization
     :return: Pandas DataFrame with averaged coverage, fpkm and tpm
     """
-    return average_data(convert_to_dataframe(_get_ngs_file_names(hour)))
+    return average_data(
+        convert_to_dataframe(_get_ngs_file_names(hour, genotype)))
 
 
 def run():
-    print(get_rna_seq_data(48))
+    print(get_rna_seq_data(48, GENOTYPE_WT))
