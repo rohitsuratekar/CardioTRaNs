@@ -21,3 +21,5 @@ INTERESTED_GENES = ["nkx2.5", "gata4", "hand2", "hey2", "gata2a", "zfpm1",
 BASE_GENES = ["nkx2.5", "gata4", "tbx5a", "mef2ca", "hand2"]
 
 BOOL_OBJ_COL = "BoolObj"
+
+CONTROL_GENES = ["neurog1", "ins", "arr3b"]

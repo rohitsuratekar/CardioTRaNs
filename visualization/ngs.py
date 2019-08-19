@@ -13,11 +13,10 @@ from SecretColors import Palette, ColorMap
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from scipy.stats import gaussian_kde
-from collections import defaultdict
+
 from analysis.ngs import *
 from constants.boolean import *
-from constants.system import *
-from helpers.parsers.ngs import get_rna_seq_data
+from helpers.parsers.ngs import get_rna_seq_data, get_mapping_property
 
 
 def visualize_single_chromosome(hour: int, chromosome_no, genes: list,
@@ -382,10 +381,25 @@ def chromosome_activity(chromosome_number: int, tpm_cutoff=0, divisions=100):
     plt.show()
 
 
+def mapping_stats(name: str):
+    """
+    Creates box plot for given mapping property
+    :param name: EXACT name of the property
+    """
+    p = Palette()
+    data = get_mapping_property(name)
+    data = [float(x.replace("%", "")) for x in data]
+    plt.boxplot(data, patch_artist=True,
+                medianprops=dict(color=p.black()),
+                boxprops=dict(facecolor=p.green(), color=p.green()))
+    plt.xlabel(name)
+    plt.xticks([])
+    plt.show()
 
 
 def run():
+    mapping_stats("% of reads unmapped: too short")
     # visualize_single_chromosome(24, 14, INTERESTED_GENES, tpm_cutoff=1)
-    plot_expression_series(BASE_GENES)
+    # plot_expression_series(BASE_GENES)
     # chromosome_activity(1)
     # test()

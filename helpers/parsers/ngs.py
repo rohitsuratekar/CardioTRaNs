@@ -5,6 +5,7 @@
 #  Copyright (c) 2019.
 #
 #  All file parsers related to NGS data
+import os
 
 import pandas as pd
 
@@ -160,5 +161,27 @@ def get_rna_seq_data(hour: int, genotype: str):
         convert_to_dataframe(_get_ngs_file_names(hour, genotype)))
 
 
+def get_mapping_property(name: str):
+    """
+    Extracts information from the STAR Mapping log files
+    :param name: EXACT name of the property (space sensitive)
+    :return: List of properties
+    """
+    data = []
+
+    def __extract_property(p):
+        with open(MAPPING_FOLDER + p) as fl:
+            for line in fl:
+                if name.lower().strip() in line.lower().strip():
+                    data.append(line.split("|")[1].strip())
+
+    files = os.listdir(MAPPING_FOLDER)
+    for f in files:
+        if MAPPING_FILE_SUFFIX in f:
+            __extract_property(f)
+
+    return data
+
+
 def run():
-    print(get_rna_seq_data(48, GENOTYPE_WT))
+    get_mapping_property("Uniquely mapped reads %")

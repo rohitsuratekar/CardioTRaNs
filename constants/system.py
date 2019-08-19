@@ -13,6 +13,8 @@ PLOT_FOLDER = "plots/"
 GENOTYPE_WT = "wt"
 GENOTYPE_GATA5 = "gata5"
 
+FILE_EXPRESSION_ATLAS = "E-ERAD-475-query-results.tpms.tsv"
+
 FILE_ZFIN_EXPRESSION = "zfin/wildtype-expression_fish_2019.07.27.txt"
 FILE_ZFIN_ANATOMY_ITEMS = "zfin/anatomy_item_2019.07.27.txt"
 FILE_ZFIN_ANATOMY_RELATIONSHIP = "zfin/anatomy_relationship_2019.07.27.txt"
@@ -31,5 +33,10 @@ FILE_RNA_SEQ_72H_2 = "rna_seq/Z_72h_wt_SRX4720632.tsv"
 # Mutant sequences
 FILE_MT_GATA5_72H_1 = "rna_seq/Z_72h_gata5_SRX4720634.tsv"
 FILE_MT_GATA5_72H_2 = "rna_seq/Z_72h_gata5_SRX4720635.tsv"
+
+# Mapping log folder from STAR alignment (e.g. SRX4157236_Log.final.out)
+# This folder will contain all log files from the STAR alignment
+MAPPING_FOLDER = "data/mapping/"
+MAPPING_FILE_SUFFIX = "_Log.final.out"
 
 FILE_BOOL_RNA_SEQ = "rna_seq/average_bool_"
