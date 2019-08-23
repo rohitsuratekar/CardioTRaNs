@@ -6,7 +6,16 @@
 #
 #  All network related models will go here
 
+from models.biology import Gene
+
 
 class TRN:
-    def __init__(self, components: list):
-        self.components = components
+    def __init__(self):
+        self.components = []
+
+    def add(self, component: Gene):
+        self.components.append(component)
+
+    def print(self):
+        for c in self.components:
+            c.print()

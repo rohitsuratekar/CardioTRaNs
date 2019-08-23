@@ -4,7 +4,7 @@
 #
 #  Copyright (c) 2019.
 
-from models.boolean import *
+from models.boolean import Input, SYMBOL_NOT
 
 
 class Gene:
@@ -26,6 +26,9 @@ class Gene:
     def history(self):
         return self.__history
 
+    def update_history(self):
+        self.__history.append(self.is_expressed)
+
     def __bool__(self):
         return self.is_expressed
 
@@ -40,14 +43,49 @@ class Gene:
     def __str__(self):
         return self.name
 
-    def input_function(self, expression):
+    def input(self, expression: Input):
         self.__input_function = expression
 
-    def enhances(self, *args):
-        pass
+    def output(self):
+        if self.__input_function is None:
+            return self.is_expressed
+        return self.__input_function.solve()
 
-    def represses(self, *args):
-        pass
+    def print(self):
 
-    def input(self, input_function: Input):
-        self.__input_function = input_function
+        def _expand(k, class_type: str):
+            if class_type == SYMBOL_NOT:
+                return [class_type, k[0]]
+
+            j = []
+            for i2 in k:
+                j.append(i2)
+                j.append(class_type)
+
+            j.pop()
+            return j
+
+        if self.__input_function is None:
+            print("There is no expression function registered for {}".format(
+                self.name))
+
+        else:
+            ip = self.__input_function.inputs
+            if len(ip) == 1:
+                print("{}*\t= {} ( {} ) ".format(self.name,
+                                                 self.__input_function,
+                                                 ip[0]))
+            else:
+                t = _expand(ip, str(self.__input_function))
+                while any([issubclass(type(x), Input) for x in t]):
+                    for m in t:
+                        if issubclass(type(m), Input):
+                            t.insert(t.index(m), "(")
+                            for m2 in _expand(m.inputs, str(m)):
+                                t.insert(t.index(m), m2)
+
+                            t.insert(t.index(m), ")")
+                            t.remove(m)
+
+                print("{}*\t= {}".format(self.name,
+                                         " ".join([str(x) for x in t])))

@@ -6,17 +6,13 @@
 #
 # All visualization related to ZFIN database
 
-from collections import defaultdict
-
 import matplotlib
 import matplotlib.pylab as plt
 import numpy as np
 from SecretColors import Palette, ColorMap
 from matplotlib.patches import Patch
 
-from analysis.boolean import is_expressed
 from analysis.zfin import *
-from constants.boolean import *
 from constants.zfin import *
 from helpers.parsers.zfin import *
 
@@ -107,7 +103,26 @@ def visualize_genes_expression(data: pd.DataFrame,
     plt.show()
 
 
+def plot_structure_wise_genes(data: pd.DataFrame, top: int = 10):
+    p = Palette()
+    d = data.groupby(COL_EXP_4_SUPER_STR_NAME).count()[[COL_EXP_0_GENE_ID]]
+    d = d.sort_values(by=COL_EXP_0_GENE_ID,
+                      ascending=False).reset_index().head(top)
+
+    names = d[COL_EXP_4_SUPER_STR_NAME].values
+    values = d[COL_EXP_0_GENE_ID].values
+    ind = range(len(names))
+    plt.barh(ind, values, color=p.blue())
+    plt.yticks(ind, names)
+    plt.ylabel("ZFIN Super Structures")
+    plt.title("Top {} structures".format(top))
+    plt.xlabel("Number of genes expressed")
+    plt.tight_layout()
+    plt.savefig(PLOT_FOLDER + "zfin_structure.png", dpi=300, type="png")
+    plt.show()
+
+
 def run():
     d = get_wt_expression()
     d = filter_by_structure(d, ["heart", "cardi"], exact=False)
-    visualize_genes_expression(d, INTERESTED_GENES, [24, 48, 72])
+    plot_structure_wise_genes(d)

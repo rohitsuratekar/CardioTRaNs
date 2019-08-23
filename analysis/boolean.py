@@ -11,7 +11,8 @@ from constants.boolean import *
 from constants.ngs import *
 from helpers.parsers.boolean import get_boolean_expression
 from models.biology import *
-from models.network import *
+from models.network import TRN
+from models.boolean import *
 
 
 def is_expressed(gene: str, hour: int, genotype: str, override: bool = False):
@@ -39,12 +40,16 @@ def is_expressed(gene: str, hour: int, genotype: str, override: bool = False):
 
 
 def generate_network():
-    g1 = Gene("nkx2.5")
-    g2 = Gene("tbx5a")
-    t = TRN([g1, g2])
-    g1.enhances("a", "b", "c")
-    g1.represses("a", "b", "c")
-    i = OR(AND("a", "b"), NOT("c"))
+    a = Gene("a")
+    b = Gene("b")
+
+    a.input(NOT(b))
+    b.input(OR(a, b))
+
+    t = TRN()
+    t.add(a)
+    t.add(b)
+    t.print()
 
 
 def run():

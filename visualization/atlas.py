@@ -10,10 +10,10 @@
 import matplotlib
 import matplotlib.pylab as plt
 import numpy as np
+import pandas as pd
 from SecretColors import Palette, ColorMap
 from matplotlib.patches import Patch
 
-from constants.boolean import *
 from constants.other import *
 from constants.system import PLOT_FOLDER
 from constants.zfin import *
@@ -21,18 +21,7 @@ from helpers.parsers.other import get_expression_atlas
 from helpers.parsers.zfin import get_stage_ontology
 
 
-def check_expression_pattern(genes: list, tpm_cutoff: float = 1):
-    """
-    Checks expression pattern in the expression atlas data
-    :param genes: List of genes to check the expression
-    :param tpm_cutoff: TPM Cutoff used to keep genes off or on
-    """
-    p = Palette()
-    on_color = p.peach(shade=40)
-    off_color = p.violet(shade=70)
-    cmap = ColorMap(matplotlib, p).from_list([off_color, on_color],
-                                             is_qualitative=True)
-
+def _normalized_expression_atlas():
     stages = get_stage_ontology()
     data = get_expression_atlas()
     stages[COL_ONT_3_STAGE_NAME] = stages[COL_ONT_3_STAGE_NAME].str.replace(
@@ -53,12 +42,20 @@ def check_expression_pattern(genes: list, tpm_cutoff: float = 1):
                 new_names[d] = d
 
     data = data.rename(columns=new_names)
-    data = data[data[COL_EXP_ATLAS_2_GENE_NAME].isin(genes)]
-    del data[COL_EXP_ATLAS_1_GENE_ID]
-    data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
+    return data
+
+
+def _plot_dataframe(data: pd.DataFrame, genes: list, tpm_cutoff: float):
+    p = Palette()
+    on_color = p.peach(shade=40)
+    off_color = p.violet(shade=70)
+    cmap = ColorMap(matplotlib, p).from_list([off_color, on_color],
+                                             is_qualitative=True)
+
     data = data.fillna(0)
     data[data < tpm_cutoff] = 0
     data[data >= tpm_cutoff] = 1
+
     fig, ax = plt.subplots()
     plt.pcolormesh(data.values, edgecolor=p.gray(shade=70),
                    linewidth=0.05, cmap=cmap)
@@ -83,5 +80,37 @@ def check_expression_pattern(genes: list, tpm_cutoff: float = 1):
     plt.show()
 
 
+def check_expression_pattern(genes: list, tpm_cutoff: float = 1):
+    """
+    Checks expression pattern in the expression atlas data
+    :param genes: List of genes to check the expression
+    :param tpm_cutoff: TPM Cutoff used to keep genes off or on
+    """
+
+    data = _normalized_expression_atlas()
+    data = data[data[COL_EXP_ATLAS_2_GENE_NAME].isin(genes)]
+    del data[COL_EXP_ATLAS_1_GENE_ID]
+    data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
+    _plot_dataframe(data, genes, tpm_cutoff)
+
+
+def genes_without_expression(times: list, tpm_cutoff: float = 1):
+    data = _normalized_expression_atlas()
+    del data[COL_EXP_ATLAS_1_GENE_ID]
+    data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
+    # Check if all time points are available
+    if not set(times) <= set(data.columns):
+        raise Exception("One more more time point not found in the data. "
+                        "Only allowed times are {}"
+                        .format(data.columns.values))
+
+    for t in times:
+        data = data[data[t] < tpm_cutoff]
+
+    print(data.sum(axis=1))
+    # _plot_dataframe(data.head(), list(data.head().index), tpm_cutoff)
+
+
 def run():
-    check_expression_pattern(CONTROL_GENES, 2)
+    # check_expression_pattern(["nkx2.3"], 2)
+    genes_without_expression([24, 48, 72])

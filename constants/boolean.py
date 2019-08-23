@@ -6,6 +6,11 @@
 #
 # All Boolean analysis related constants will go here
 
+from constants.colors import *
+
+SYMBOL_OR = COLOR_BLUE + "OR" + COLOR_END
+SYMBOL_AND = COLOR_BLUE + "AND" + COLOR_END
+SYMBOL_NOT = COLOR_BLUE + "NOT" + COLOR_END
 
 # In RNA-seq data, below this cut-off genes will be considered not expressed
 TPM_CUT_OFF = 10
