@@ -11,10 +11,11 @@ from constants.colors import *
 SYMBOL_OR = COLOR_BLUE + "OR" + COLOR_END
 SYMBOL_AND = COLOR_BLUE + "AND" + COLOR_END
 SYMBOL_NOT = COLOR_BLUE + "NOT" + COLOR_END
+SYMBOL_COPY = "COPY"
 
 # In RNA-seq data, below this cut-off genes will be considered not expressed
-TPM_CUT_OFF = 10
-FPKM_CUT_OFF = 10
+TPM_CUT_OFF = 1
+FPKM_CUT_OFF = 1
 
 # All genes interested in the boolean model. Based on this list, new small
 # file will be generated which can be easily read multiple times

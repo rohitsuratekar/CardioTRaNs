@@ -11,8 +11,8 @@ from constants.boolean import *
 from constants.ngs import *
 from helpers.parsers.boolean import get_boolean_expression
 from models.biology import *
-from models.network import TRN
 from models.boolean import *
+from models.network import TRN
 
 
 def is_expressed(gene: str, hour: int, genotype: str, override: bool = False):
@@ -39,18 +39,26 @@ def is_expressed(gene: str, hour: int, genotype: str, override: bool = False):
            (d[COL_STRING_TIE_8_FPKM].values[0] > FPKM_CUT_OFF)
 
 
-def generate_network():
-    a = Gene("a")
-    b = Gene("b")
+def base_network():
+    def _make_gene(name: str):
+        return Gene(name, is_expressed(name.lower(), 48, "wt"))
 
-    a.input(NOT(b))
-    b.input(OR(a, b))
+    nkx2_5 = _make_gene("Nkx2.5")
+    gata4 = _make_gene("Gata4")
+    tbx5a = _make_gene("Tbx5a")
+    mef2c = _make_gene("Mef2ca")
+    hand2 = _make_gene("Hand2")
+
+    nkx2_5.input(OR(gata4, tbx5a))
+    tbx5a.input(COPY(nkx2_5))
+    gata4.input(COPY(tbx5a))
+    mef2c.input(OR(nkx2_5, gata4, tbx5a))
+    hand2.input(OR(gata4, mef2c))
 
     t = TRN()
-    t.add(a)
-    t.add(b)
-    t.print()
+    t.add(nkx2_5, gata4, tbx5a, mef2c, hand2)
+    t.print_expression_pattern()
 
 
 def run():
-    generate_network()
+    base_network()

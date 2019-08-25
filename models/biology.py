@@ -4,7 +4,7 @@
 #
 #  Copyright (c) 2019.
 
-from models.boolean import Input, SYMBOL_NOT
+from models.boolean import *
 
 
 class Gene:
@@ -72,9 +72,12 @@ class Gene:
         else:
             ip = self.__input_function.inputs
             if len(ip) == 1:
-                print("{}*\t= {} ( {} ) ".format(self.name,
-                                                 self.__input_function,
-                                                 ip[0]))
+                if type(self.__input_function) == COPY:
+                    print("{}*\t= {}".format(self.name, ip[0]))
+                else:
+                    print("{}*\t= {} ( {} ) ".format(self.name,
+                                                     self.__input_function,
+                                                     ip[0]))
             else:
                 t = _expand(ip, str(self.__input_function))
                 while any([issubclass(type(x), Input) for x in t]):

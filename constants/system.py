@@ -23,16 +23,28 @@ FILE_ZFIN_XPAT_STAGE = "zfin/xpat_stage_anatomy_2019.07.27.txt"
 
 # Wild type sequences
 FILE_RNA_SEQ_20H_1 = "rna_seq/Z_20h_wt_SRX4157236.tsv"
+
 FILE_RNA_SEQ_24H_1 = "rna_seq/Z_24h_wt_SRX4720625.tsv"
 FILE_RNA_SEQ_24H_2 = "rna_seq/Z_24h_wt_SRX4720626.tsv"
 FILE_RNA_SEQ_48H_1 = "rna_seq/Z_48h_wt_SRX4720628.tsv"
-FILE_RNA_SEQ_48H_2 = "rna_seq/Z_24h_wt_SRX4720626.tsv"
+FILE_RNA_SEQ_48H_2 = "rna_seq/Z_48h_wt_SRX4720629.tsv"
 FILE_RNA_SEQ_72H_1 = "rna_seq/Z_72h_wt_SRX4720631.tsv"
 FILE_RNA_SEQ_72H_2 = "rna_seq/Z_72h_wt_SRX4720632.tsv"
 
 # Mutant sequences
 FILE_MT_GATA5_72H_1 = "rna_seq/Z_72h_gata5_SRX4720634.tsv"
 FILE_MT_GATA5_72H_2 = "rna_seq/Z_72h_gata5_SRX4720635.tsv"
+
+# Salmon Files
+FILE_SALMON_24H_1 = "salmon/S_24h_WT_SRX4720626.tsv"
+FILE_SALMON_48H_1 = "salmon/S_48h_WT_SRX4720628.tsv"
+FILE_SALMON_48H_2 = "salmon/S_48h_WT_SRX4720629.tsv"
+FILE_SALMON_72H_1 = "salmon/S_72h_WT_SRX4720631.tsv"
+FILE_SALMON_72H_2 = "salmon/S_72h_WT_SRX4720632.tsv"
+
+FILE_SALMON_GATA5_72H_1 = "salmon/S_72h_GATA5_SRX4720634.tsv"
+FILE_SALMON_GATA5_72H_2 = "salmon/S_72h_GATA5_SRX4720635.tsv"
+FILE_SALMON_TBX5_72H_1 = "salmon/S_72h_TBX5_SRX4720637.tsv"
 
 # Mapping log folder from STAR alignment (e.g. SRX4157236_Log.final.out)
 # This folder will contain all log files from the STAR alignment

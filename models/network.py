@@ -6,16 +6,18 @@
 #
 #  All network related models will go here
 
-from models.biology import Gene
-
 
 class TRN:
     def __init__(self):
         self.components = []
 
-    def add(self, component: Gene):
-        self.components.append(component)
+    def add(self, *component):
+        self.components.extend(component)
 
     def print(self):
         for c in self.components:
             c.print()
+
+    def print_expression_pattern(self):
+        for c in self.components:
+            print("{} = {}".format(c, c.is_expressed))

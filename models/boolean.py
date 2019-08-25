@@ -6,7 +6,7 @@
 #
 #  All Boolean object models will go here
 
-from constants.boolean import SYMBOL_AND, SYMBOL_NOT, SYMBOL_OR
+from constants.boolean import SYMBOL_AND, SYMBOL_NOT, SYMBOL_OR, SYMBOL_COPY
 
 
 class Input:
@@ -107,3 +107,24 @@ class NOT(Input):
 
     def __str__(self):
         return SYMBOL_NOT
+
+
+class COPY(Input):
+    """
+    Artificial gate to copy same state as input
+    """
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        if len(args) != 1:
+            raise Exception("COPY takes exactly 1 input")
+
+    def solve(self):
+        if len(self._final_inputs) == 0:
+            self._resolve_input()
+
+        return self._final_inputs[0]
+
+    def __str__(self):
+        return SYMBOL_COPY
