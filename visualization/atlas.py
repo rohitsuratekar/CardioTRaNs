@@ -58,7 +58,7 @@ def _plot_dataframe(data: pd.DataFrame, genes: list, tpm_cutoff: float):
 
     fig, ax = plt.subplots()
     plt.pcolormesh(data.values, edgecolor=p.gray(shade=70),
-                   linewidth=0.05, cmap=cmap)
+                   linewidth=0.05, cmap=cmap, vmin=0, vmax=1)
     ax.set_aspect(1.2)
     ax.set_xticks(np.arange(0, len(data.columns)) + 0.5)
     ax.set_yticks(np.arange(0, len(genes)) + 0.5)
@@ -94,23 +94,60 @@ def check_expression_pattern(genes: list, tpm_cutoff: float = 1):
     _plot_dataframe(data, genes, tpm_cutoff)
 
 
-def genes_without_expression(times: list, tpm_cutoff: float = 1):
-    data = _normalized_expression_atlas()
-    del data[COL_EXP_ATLAS_1_GENE_ID]
+def include_expression(data,
+                       include_from: float,
+                       include_till: float,
+                       ignore_others: bool = False,
+                       exclude_mode: bool = False,
+                       tpm_cutoff: float = 1):
+    try:
+        del data[COL_EXP_ATLAS_1_GENE_ID]
+    except KeyError:
+        # Ignore the post processed data
+        pass
     data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
     # Check if all time points are available
-    if not set(times) <= set(data.columns):
-        raise Exception("One more more time point not found in the data. "
-                        "Only allowed times are {}"
-                        .format(data.columns.values))
+    times = []
+    for t in data.columns.values:
+        if include_from <= t <= include_till:
+            times.append(t)
 
-    for t in times:
-        data = data[data[t] < tpm_cutoff]
+    data = data.fillna(0)
 
-    print(data.sum(axis=1))
-    # _plot_dataframe(data.head(), list(data.head().index), tpm_cutoff)
+    for t in data.columns.values:
+        if t in times:
+            if exclude_mode:
+                data = data[data[t] < tpm_cutoff]
+            else:
+                data = data[data[t] >= tpm_cutoff]
+        else:
+            if not ignore_others:
+                if exclude_mode:
+                    data = data[data[t] >= tpm_cutoff]
+                else:
+                    data = data[data[t] < tpm_cutoff]
+
+    temp = "temp"
+    data[temp] = data.sum(axis=1)
+
+    data = data.sort_values(by=temp, ascending=False)
+    del data[temp]
+    return data.reset_index(drop=False)
+
+
+def exclude_expression(data, exclude_from: float, exclude_till: float,
+                       ignore_others: bool = True,
+                       tpm_cutoff: float = 1):
+    return include_expression(data, include_from=exclude_from,
+                              include_till=exclude_till,
+                              exclude_mode=True,
+                              ignore_others=ignore_others,
+                              tpm_cutoff=tpm_cutoff)
 
 
 def run():
-    # check_expression_pattern(["nkx2.3"], 2)
-    genes_without_expression([24, 48, 72])
+    data = _normalized_expression_atlas()
+    # data = exclude_expression(data, exclude_from=20 , exclude_till=80)
+    data = include_expression(data, include_from=97, include_till=125)
+    data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
+    _plot_dataframe(data.head(10), list(data.head(10).index), 1)
