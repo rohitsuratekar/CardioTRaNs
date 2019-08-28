@@ -15,6 +15,7 @@ from matplotlib.patches import Patch
 from analysis.zfin import *
 from constants.zfin import *
 from helpers.parsers.zfin import *
+from constants.boolean import *
 
 
 def visualize_genes_expression(data: pd.DataFrame,
@@ -122,7 +123,54 @@ def plot_structure_wise_genes(data: pd.DataFrame, top: int = 10):
     plt.show()
 
 
+def zfin(data, genes: list, time: list, structure: list):
+    # TODO : Check properly
+    p = Palette()
+    on_color = p.peach(shade=40)
+    off_color = p.violet(shade=70)
+    cmap = ColorMap(matplotlib, p).from_list([off_color, on_color],
+                                             is_qualitative=True)
+
+    data = filter_by_genes(data, genes)
+    data = filter_by_structure(data, structure, exact=False)
+    exp = []
+    for t in time:
+        temp = filter_by_start_time(data, t)
+        all_genes = list(set(temp[COL_EXP_1_GENE_SYMBOL].values))
+        k = []
+        for g in genes:
+            k.append(g in all_genes)
+
+        exp.append([int(x) for x in k])
+
+    exp = np.asarray(exp)
+
+    fig, ax = plt.subplots()
+    plt.pcolormesh(exp.T, edgecolor=p.gray(shade=70),
+                   linewidth=0.05, cmap=cmap, vmin=0, vmax=1)
+    ax.set_aspect(1.2)
+    ax.set_xticks(np.arange(0, len(time)) + 0.5)
+    ax.set_yticks(np.arange(0, len(genes)) + 0.5)
+    ax.set_xticklabels(["{}".format(x) for x in time], rotation=45,
+                       ha="left")
+    ax.set_yticklabels([str(x).capitalize() for x in genes])
+    plt.xlabel("Hours Post Fertilization")
+    ax.xaxis.set_label_position('top')
+    ax.xaxis.set_ticks_position('top')
+    # ax.set_title("RNA-seq Boolean Conditions", y=1.08)
+    legend_elements = [Patch(facecolor=on_color, label='ON'),
+                       Patch(facecolor=off_color, label='OFF or N/A')]
+    ax.legend(handles=legend_elements, loc='upper center',
+              bbox_to_anchor=(0.5, -0.05), fancybox=True, ncol=2,
+              title="with structure {}".format(structure))
+
+    plt.tight_layout()
+
+    plt.savefig(PLOT_FOLDER + "zfin_gene_expression.png", dpi=300,
+                type="png")
+    plt.show()
+
+
 def run():
     d = get_wt_expression()
-    d = filter_by_structure(d, ["heart", "cardi"], exact=False)
-    plot_structure_wise_genes(d)
+    zfin(d, INTERESTED_GENES, [24, 48, 72], ["heart", "cardi"])

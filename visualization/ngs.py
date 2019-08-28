@@ -16,6 +16,7 @@ from scipy.stats import gaussian_kde
 
 from analysis.ngs import *
 from constants.boolean import *
+from constants.system import GENOTYPE_WT
 from helpers.parsers.ngs import get_rna_seq_data, get_mapping_property
 
 
@@ -175,14 +176,15 @@ def map_all_chromosomes_bar(hour: int, tpm_percentage_cutoff=0.01):
     plt.show()
 
 
-def map_given_genes(hour: int, genes: list):
+def map_given_genes(hour: int, genes: list, genotype: str):
     """
     Shows location of given gene on the chromosome plot
     :param hour: Hours post fertilization
     :param genes: List of genes to map
+    :param genotype: Genotype
     """
     p = Palette()
-    data = get_rna_seq_data(hour)
+    data = get_rna_seq_data(hour, genotype)
     max_pos = data[COL_STRING_TIE_6_END].max()
     y_ticks = data[COL_STRING_TIE_3_REFERENCE].unique()
 
@@ -228,12 +230,12 @@ def map_given_genes(hour: int, genes: list):
     plt.show()
 
 
-def plot_fpkm_tpm_density(hour: int):
+def plot_fpkm_tpm_density(hour: int, genotype: str):
     """
     Plots the FPKM and TPM density distributions
     """
     p = Palette()
-    data = get_rna_seq_data(hour)
+    data = get_rna_seq_data(hour, genotype)
     d = data[data[COL_STRING_TIE_8_FPKM] > 0][COL_STRING_TIE_8_FPKM].apply(
         lambda x: np.log2(x))
 
@@ -286,15 +288,16 @@ def plot_single_gene_expression(gene: str):
     plt.show()
 
 
-def plot_expression_series(genes: list):
+def plot_expression_series(genes: list, genotype: str):
     """
     Show how given gene changes their TPM values over the developmental time
     point
     :param genes: List of genes
+    :param genotype: Genotype of the sample
     """
-    p = Palette(allow_gray_shades=True)
+    p = Palette()
     hours = [24, 48, 72]
-    h_data = [get_rna_seq_data(x) for x in hours]
+    h_data = [get_rna_seq_data(x, genotype) for x in hours]
     data = {}
 
     for g in genes:
@@ -304,11 +307,16 @@ def plot_expression_series(genes: list):
         data[g] = k
 
     ind = range(len(hours))
-    colors = p.random(no_of_colors=len(genes), shade=50)
+    # colors = p.random(no_of_colors=len(genes), shade=50)
+    colors = [p.blue(shade=60), p.red(shade=50), p.yellow(shade=30),
+              p.orange(shade=40), p.aqua()]
     for i, g in enumerate(genes):
-        plt.plot(ind, data[g], label=g, color=colors[i], marker='o',
+        plt.plot(ind, data[g], label=str(g).capitalize(), color=colors[i],
+                 marker='o',
                  linestyle="--")
     plt.xticks(ind, ["{} hpf".format(x) for x in hours])
+    plt.grid(True, axis="y", color=p.gray(shade=25), linestyle='-')
+    plt.gca().patch.set_facecolor(p.gray(shade=10))
     plt.ylabel("Average TPM")
     plt.legend(loc=0)
     plt.show()
@@ -398,8 +406,10 @@ def mapping_stats(name: str):
 
 
 def run():
-    mapping_stats("% of reads unmapped: too short")
+    # mapping_stats("Uniquely mapped reads % ")
     # visualize_single_chromosome(24, 14, INTERESTED_GENES, tpm_cutoff=1)
-    # plot_expression_series(BASE_GENES)
+    # plot_expression_series(BASE_GENES, GENOTYPE_WT)
+    plot_fpkm_tpm_density(72, GENOTYPE_WT)
+    # map_given_genes(24, BASE_GENES, GENOTYPE_WT)
     # chromosome_activity(1)
     # test()

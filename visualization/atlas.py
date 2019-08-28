@@ -148,6 +148,6 @@ def exclude_expression(data, exclude_from: float, exclude_till: float,
 def run():
     data = _normalized_expression_atlas()
     # data = exclude_expression(data, exclude_from=20 , exclude_till=80)
-    data = include_expression(data, include_from=97, include_till=125)
+    data = include_expression(data, include_from=80, include_till=130)
     data = data.set_index(COL_EXP_ATLAS_2_GENE_NAME)
-    _plot_dataframe(data.head(10), list(data.head(10).index), 1)
+    _plot_dataframe(data.head(15), list(data.head(15).index), 1)

@@ -45,7 +45,7 @@ def boolean_rna_seq_exp(genes: list, exp_hours: list, genotype: str,
 
     fig, ax = plt.subplots()
     plt.pcolormesh(full.T, edgecolor=p.gray(shade=70),
-                   linewidth=0.05, cmap=cmap)
+                   linewidth=0.05, cmap=cmap, vmin=0, vmax=1)
     ax.set_aspect(1.2)
     ax.set_xticks(np.arange(0, len(exp_hours)) + 0.5)
     ax.set_yticks(np.arange(0, len(genes)) + 0.5)

@@ -13,6 +13,7 @@ PLOT_FOLDER = "plots/"
 GENOTYPE_WT = "wt"
 GENOTYPE_GATA5 = "gata5"
 
+FILE_MANUAL = "manual.csv"
 FILE_EXPRESSION_ATLAS = "E-ERAD-475-query-results.tpms.tsv"
 
 FILE_ZFIN_EXPRESSION = "zfin/wildtype-expression_fish_2019.07.27.txt"

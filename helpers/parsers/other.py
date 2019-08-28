@@ -25,6 +25,11 @@ def get_expression_atlas():
         return data
 
 
+def get_expression_manual():
+    with open(DATA_FOLDER + FILE_MANUAL) as f:
+        data = pd.read_csv(f)
+        return data
+
+
 def run():
-    d = get_expression_atlas()
-    print(d.max())
+    get_expression_manual()
