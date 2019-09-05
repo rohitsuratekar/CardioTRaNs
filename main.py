@@ -1,7 +1,7 @@
 import os
 
 from constants.system import PLOT_FOLDER
-from visualization.zfin import run
+from helpers.parsers.ngs import run
 
 # Create folder for saving plots
 if not os.path.exists(PLOT_FOLDER):

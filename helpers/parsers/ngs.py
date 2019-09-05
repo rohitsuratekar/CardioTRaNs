@@ -183,5 +183,11 @@ def get_mapping_property(name: str):
     return data
 
 
+def test():
+    with open(FILE_LIST) as f:
+        data = pd.read_csv(f)
+        print(data[COL_LIST_1_SRA])
+
+
 def run():
-    get_mapping_property("Uniquely mapped reads %")
+    test()

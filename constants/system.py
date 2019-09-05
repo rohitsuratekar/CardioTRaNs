@@ -9,6 +9,7 @@
 
 DATA_FOLDER = "data/"
 PLOT_FOLDER = "plots/"
+FILE_LIST = "constants/files.csv"
 
 GENOTYPE_WT = "wt"
 GENOTYPE_GATA5 = "gata5"

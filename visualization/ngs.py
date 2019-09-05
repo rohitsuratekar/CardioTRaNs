@@ -405,11 +405,10 @@ def mapping_stats(name: str):
     plt.show()
 
 
+def compare_star_salmon():
+    star = get_rna_seq_data(24, GENOTYPE_WT)
+    print(star)
+
+
 def run():
-    # mapping_stats("Uniquely mapped reads % ")
-    # visualize_single_chromosome(24, 14, INTERESTED_GENES, tpm_cutoff=1)
-    # plot_expression_series(BASE_GENES, GENOTYPE_WT)
-    plot_fpkm_tpm_density(72, GENOTYPE_WT)
-    # map_given_genes(24, BASE_GENES, GENOTYPE_WT)
-    # chromosome_activity(1)
-    # test()
+    compare_star_salmon()
