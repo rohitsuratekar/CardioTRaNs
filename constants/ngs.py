@@ -1,36 +1,73 @@
-#  Project: CardioTrans
-#  Author: Rohit Suratekar
-#  Created On: 19/07/19, 2:16 PM
-#
 #  Copyright (c) 2019.
+#  BooleanTRN (previously CardioTraNs)
+#  Author: Rohit Suratekar
+#  Website: https://github.com/rohitsuratekar/CardioTRaNs
 #
-#  All constants related to NGS files will go here
+# Constants related to NGS Analysis
 
 
-# Columns in TSV file output from StringTie
+# Method outputs
+OUTPUT_STRING_TIE = "StringTie"
+OUTPUT_STAR = "STAR"
+OUTPUT_SALMON = "Salmon"
+OUTPUT_SALMON_LOG = "Salmon_log"
 
-COL_STRING_TIE_1_GENE_ID = "Gene ID"
-COL_STRING_TIE_2_GENE_NAME = "Gene Name"
-COL_STRING_TIE_3_REFERENCE = "Reference"
-COL_STRING_TIE_4_STRAND = "Strand"
-COL_STRING_TIE_5_START = "Start"
-COL_STRING_TIE_6_END = "End"
-COL_STRING_TIE_7_COVERAGE = "Coverage"
-COL_STRING_TIE_8_FPKM = "FPKM"
-COL_STRING_TIE_9_TPM = "TPM"
+# Referenced ID for lab databases
+BIO_PROJECT_WINATA_LAB = "PRJNA492280"
+BIO_PROJECT_COUGHLIN_LAB = "PRJNA474426"
 
-ALL_STRING_TIE_COLS = [COL_STRING_TIE_1_GENE_ID, COL_STRING_TIE_2_GENE_NAME,
-                       COL_STRING_TIE_3_REFERENCE,
-                       COL_STRING_TIE_4_STRAND, COL_STRING_TIE_5_START,
-                       COL_STRING_TIE_6_END, COL_STRING_TIE_7_COVERAGE,
-                       COL_STRING_TIE_8_FPKM, COL_STRING_TIE_9_TPM]
+# RNA seq related
+R_SEQ_FILE_SRA_ID = "sra_id"
+R_SEQ_FILE_BIO_PROJECT = "bioproject"
+R_SEQ_FILE_TIME = "time"
+R_SEQ_FILE_GENOTYPE = "genotype"
+R_SEQ_FILE_TISSUE = "tissue"
+R_SEQ_FILE_INSTRUMENT = "instrument"
+R_SEQ_FILE_LAYOUT = "layout"
+R_SEQ_FILE_SELECTION = "selection"
+R_SEQ_FILE_REFERENCE = "reference"
+R_SEQ_FILE_REF_DETAILS = "ref_details"
 
-COL_LIST_1_SRA = "sra_id"
-COL_LIST_2_BIOPROJECT = "bioproject"
-COL_LIST_3_TIME = "time"
-COL_LIST_4_GENOTYPE = "genotype"
-COL_LIST_5_TISSUE = "tissue"
-COL_LIST_6_INSTRUMENT = "instrument"
-COL_LIST_7_LAYOUT = "layout"
-COL_LIST_8_SELECTION = "selection"
-COL_LIST_9_REFERENCE = "reference"
+# STAR output
+
+STAR_JOB_START = "Started job on"
+STAR_MAPPING_START = "Started mapping on"
+STAR_FINISHED_ON = "Finished on"
+STAR_MAPPING_SPEED = "Mapping speed, Million of reads per hour"
+STAR_INPUT_READS = "Number of input reads"
+STAR_AVG_READ_LENGTH = "Average input read length"
+STAR_UNIQUELY_MAPPED_READS = "Uniquely mapped reads number"
+STAR_UNIQUELY_MAPPED_READ_PERCENTAGE = "Uniquely mapped reads %"
+STAR_AVG_MAPPED_LENGTH = "Average mapped length"
+STAR_TOTAL_SPLICES = "Number of splices: Total"
+STAR_ANNOTATED_SPLICES = "Number of splices: Annotated (sjdb)"
+STAR_SPLICES_GT_AG = "Number of splices: GT/AG"
+STAR_SPLICES_GC_AG = "Number of splices: GC/AG"
+STAR_SPLICES_AT_AC = "Number of splices: AT/AC"
+STAR_SPLICES_NON_CANONICAL = "Number of splices: Non-canonical"
+STAR_MISMATCH_RATE_PERCENT = "Mismatch rate per base, %"
+STAR_DELETION_RATE = "Deletion rate per base"
+STAR_AVG_DELETION_LENGTH = "Deletion average length"
+STAR_INSERTION_RATE = "Insertion rate per base"
+STAR_AVG_INSERTION_LENGTH = "Insertion average length"
+STAR_MULTI_MAPPED_READS = "Number of reads mapped to multiple loci"
+STAR_MULTI_MAPPED_PERCENT = "% of reads mapped to multiple loci"
+STAR_TOO_MANY_LOCI_MAPPING = "Number of reads mapped to too many loci"
+STAR_TOO_MANY_LOCI_MAPPING_PERCENT = "% of reads mapped to too many loci"
+STAR_MISMATCH_UNMAPPED_READS = "Number of reads unmapped: too many mismatches"
+STAR_MISMATCH_UNMAPPED_READS_PERCENT = "% of reads unmapped: too many mismatches"
+STAR_SHORT_UNMAPPED_READS = "Number of reads unmapped: too short"
+STAR_SHORT_UNMAPPED_READS_PERCENT = "% of reads unmapped: too short"
+STAR_OTHER_UNMAPPED_READS = "Number of reads unmapped: other"
+STAR_OTHER_UNMAPPED_READS_PERCENT = "% of reads unmapped: other"
+STAR_CHIMERIC_READS = "Number of chimeric reads"
+STAR_CHIMERIC_READS_PERCENT = "% of chimeric reads"
+
+SAL_LOG_FRAG_DIST_LENGTH = "frag_dist_length"
+SAL_LOG_VALID_TARGETS = "num_valid_targets"
+SAL_LOG_DECOY_TARGETS = "num_decoy_targets"
+SAL_LOG_PROCESSED_READS = "num_processed"
+SAL_LOG_MAPPED_READS = "num_mapped"
+SAL_LOG_MAPPING_PERCENT = "percent_mapped"
+SAL_LOG_START_TIME = "start_time"
+SAL_LOG_END_TIME = "end_time"
