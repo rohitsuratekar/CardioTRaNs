@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from visualization.rnaseq import run
+from helpers.filemanager import run
 
 run()
