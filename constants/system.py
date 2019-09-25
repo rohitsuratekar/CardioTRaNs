@@ -5,14 +5,10 @@
 #
 # All constants related to system
 
-
-FILE_SRA_DETAILS = "data/sra_details.csv"
-FILE_EXPRESSION_ATLAS = "data/E-ERAD-475-query-results.tpms.tsv"
-FILE_ZFIN_DATA = "data/zfin_details.csv"
+FILE_MANAGER = "data/files.csv"
+FILE_SRA_DETAILS = "data/other/sra_details.csv"
 
 DATA_FOLDER = "data/"
-FILE_MANAGER = "data/files.csv"
-
 DATA_RNA_SEQ = "data/rnaseq"
 
 GENOTYPE_WT = "wt"

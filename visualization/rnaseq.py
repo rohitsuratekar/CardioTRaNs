@@ -10,7 +10,7 @@ from collections import defaultdict
 import matplotlib.pylab as plt
 from SecretColors import Palette
 
-from helpers.parsers.ngs import *
+from helpers.ngs_parser import *
 from helpers.utils import log
 from matplotlib.patches import Patch
 

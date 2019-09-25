@@ -106,4 +106,4 @@ def string_info():
 
 def run():
     d = string_info()
-    print(d)
+    print(d.columns)

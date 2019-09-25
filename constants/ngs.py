@@ -63,6 +63,20 @@ STAR_OTHER_UNMAPPED_READS_PERCENT = "% of reads unmapped: other"
 STAR_CHIMERIC_READS = "Number of chimeric reads"
 STAR_CHIMERIC_READS_PERCENT = "% of chimeric reads"
 
+# Salmon output file columns
+
+SALMON_NAME = "Name"
+SALMON_LENGTH = "Length"
+SALMON_EFFECTIVE_LENGTH = "EffectiveLength"
+SALMON_TPM = "TPM"
+SALMON_NUM_READS = "NumReads"
+SALMON_GENE_STABLE_ID = "Gene stable ID"
+SALMON_GENE_NAME = "Gene name"
+SALMON_ZFIN_ID = "ZFIN ID"
+SALMON_TRANSCRIPT_SOURCE = "Source (transcript)"
+
+# Salmon Log
+
 SAL_LOG_FRAG_DIST_LENGTH = "frag_dist_length"
 SAL_LOG_VALID_TARGETS = "num_valid_targets"
 SAL_LOG_DECOY_TARGETS = "num_decoy_targets"
@@ -71,3 +85,15 @@ SAL_LOG_MAPPED_READS = "num_mapped"
 SAL_LOG_MAPPING_PERCENT = "percent_mapped"
 SAL_LOG_START_TIME = "start_time"
 SAL_LOG_END_TIME = "end_time"
+
+# StringTie constants
+
+STRING_GENE_ID = "Gene ID"
+STRING_GENE_NAME = "Gene Name"
+STRING_REFERENCE = "Reference"
+STRING_STRAND = "Strand"
+STRING_START = "Start"
+STRING_END = "End"
+STRING_COVERAGE = "Coverage"
+STRING_FPKM = "FPKM"
+STRING_TPM = "TPM"

@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from helpers.filemanager import run
+from visualization.controls import run
 
 run()
