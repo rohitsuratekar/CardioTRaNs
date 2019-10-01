@@ -7,9 +7,10 @@
 
 import matplotlib.pyplot as plt
 from SecretColors import Palette
-
+import numpy as np
+from constants.boolean import *
 from constants.ngs import *
-from constants.system import GENOTYPE_WT
+from constants.system import *
 from helpers.ngs_parser import compare_stringtie_salmon
 
 p = Palette()
@@ -46,5 +47,35 @@ def plot_tpm_disparity(genotype, time_series, bioproject):
     plt.show()
 
 
+def _get_gene_expression(data, gene):
+    data = data[data[STRING_GENE_NAME] == gene]
+    if len(data) != 1:
+        raise Exception(
+            "Either gene {} has multiple values or data does not "
+            "exists".format(gene))
+    return data
+
+
+def check_tpm_values_per_gene(genotype, timeseries, bioproject, genes):
+    values = []
+    for time in timeseries:
+        data = compare_stringtie_salmon(genotype, time, bioproject)
+        temp = []
+        for g in genes:
+            tpms = _get_gene_expression(data, g)
+            temp.append([tpms[OUTPUT_STRING_TIE].values[0],
+                         tpms[OUTPUT_SALMON].values[0]])
+
+        values.append(temp)
+
+    values = np.asarray(values)
+    for v in values:
+        plt.imshow(v)
+
+    plt.colorbar()
+    plt.show()
+
+
 def run():
-    plot_tpm_disparity(GENOTYPE_WT, [24, 48, 72], BIO_PROJECT_WINATA_LAB)
+    check_tpm_values_per_gene(GENOTYPE_WT, [72], BIO_PROJECT_WINATA_LAB,
+                              BASE_GENES)

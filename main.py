@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from visualization.controls import run
+from analysis.boolean import run
 
 run()

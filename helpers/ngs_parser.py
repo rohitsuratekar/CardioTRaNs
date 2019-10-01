@@ -288,6 +288,10 @@ def compare_stringtie_salmon(genotype, time, bioproject):
     star = average_data(star, OUTPUT_STRING_TIE)
     salmon = average_data(salmon, OUTPUT_SALMON)
 
+    if len(star) == 0 or len(salmon) == 0:
+        raise Exception("One or more dataset for given options (genotype, "
+                        "time and bioproject) is not available")
+
     # Need to rename columns to the same name so that they can be combined
     # in one column
     gene_names1 = (star[[STRING_GENE_ID, STRING_GENE_NAME]]
