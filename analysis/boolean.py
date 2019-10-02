@@ -33,14 +33,14 @@ def test_network():
     b = Gene("b", True)
     c = Gene("c", True)
 
-    c.input(NOT(c))
+    c.input(OR(a, NOT(c)))
 
     t = TRN()
-    t.add(c)
+    t.add(c, b, a)
     return t
 
 
 def run():
-    base = test_network()
-    base.update(3)
+    base = base_network()
+    base.update(1)
     base.print_expression_pattern()

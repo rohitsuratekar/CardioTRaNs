@@ -5,8 +5,6 @@
 #
 # Network related models
 
-from models.biology import Gene
-
 
 class TRN:
     def __init__(self):
@@ -21,11 +19,11 @@ class TRN:
 
     def print_expression_pattern(self):
         for c in self.components:
-            print("{} = {}".format(c, c.history))
+            print("{}\t= {}".format(c, c.history))
 
     def update(self, time: int = 1):
         for t in range(time):
-            for c2 in self.components:
-                c = c2  # type:Gene
-                c.output()
-                c.update_expression()
+            for g in self.components:
+                g.check()
+            for g in self.components:
+                g.update()
