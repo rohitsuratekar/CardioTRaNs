@@ -6,11 +6,12 @@
 # All control visualizations
 
 import matplotlib.pyplot as plt
-from SecretColors import Palette
 import numpy as np
-from constants.boolean import *
+from SecretColors import Palette
+
+from constants.other import *
 from constants.ngs import *
-from constants.system import *
+from helpers.atlas_parser import atlas_data
 from helpers.ngs_parser import compare_stringtie_salmon
 
 p = Palette()
@@ -76,6 +77,12 @@ def check_tpm_values_per_gene(genotype, timeseries, bioproject, genes):
     plt.show()
 
 
+def check_atlas_expression_data():
+    d = atlas_data()
+    del d[EXP_ATLAS_GENE_ID]
+    d = d.set_index(EXP_ATLAS_GENE_NAME).fillna(0)
+    print(d)
+
+
 def run():
-    check_tpm_values_per_gene(GENOTYPE_WT, [72], BIO_PROJECT_WINATA_LAB,
-                              BASE_GENES)
+    check_atlas_expression_data()

@@ -42,5 +42,5 @@ def test_network():
 
 def run():
     base = base_network()
-    base.update(1)
+    base.update(4)
     base.print_expression_pattern()
