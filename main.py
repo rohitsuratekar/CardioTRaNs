@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from visualization.atlas import run
+from analysis.atlas import run
 
 run()

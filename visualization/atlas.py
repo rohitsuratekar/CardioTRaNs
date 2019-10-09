@@ -11,7 +11,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from SecretColors import Palette, ColorMap
+from SecretPlots import *
 
+from analysis.atlas import isolate_by_time, go_distribution
+from constants.biomart import *
 from constants.other import *
 from helpers.atlas_parser import atlas_data
 
@@ -69,5 +72,55 @@ def plot_tpm_values():
     plt.show()
 
 
+def plot_time_range(start_time, end_time, tpm_cutoff):
+    p = Palette(show_warning=False)
+    data = atlas_data()
+    data = isolate_by_time(data, start_time=start_time, end_time=end_time,
+                           tpm_cutoff=tpm_cutoff).head(40)
+    print("Total gene found : {}".format(len(data)))
+    del data[EXP_ATLAS_GENE_ID]
+    data = data.set_index(EXP_ATLAS_GENE_NAME)
+    cp = (ColorPlot(data.values)
+          .change_orientation("y")
+          .add_x_ticklabels(data.columns.values, rotation=45, ha="left")
+          .add_y_ticklabels(data.index.values)
+          .add_x_label("Hours post fertilization")
+          .add_x_padding(0, 0)
+          .add_y_padding(0, 0)
+          .add_on_color(p.amber())
+          .add_off_color(p.blue(shade=60))
+          .invert_y()
+          )
+    cp.draw()
+    cp.ax.xaxis.set_ticks_position("top")
+    cp.ax.xaxis.set_label_position("top")
+    cp.show(tight=True)
+
+
+def plot_targeted_go(start, end, tpm):
+    by = BIOMART_GO_NAME
+    p = Palette()
+    no_of_genes = 30
+    go = go_distribution(BIOMART_GO_NAME, start, end, tpm,
+                         strict=True).head(no_of_genes)
+
+    bar = (BarPlot(go["count"].values)
+           .change_orientation("y")
+           .invert_y()
+           .add_y_ticklabels(go[by].values)
+           .add_x_label("Number of expressed genes (> {} TPM)".format(tpm))
+           .add_colors([p.red()])
+           )
+    bar.draw()
+    title = ""
+    if len(go) > no_of_genes:
+        title = "Top {} ".format(no_of_genes)
+    title += "'{}' for genes expressed\nonly between {} -{} hpf".format(by,
+                                                                        start,
+                                                                        end)
+    bar.ax.set_title(title)
+    bar.show(tight=True)
+
+
 def run():
-    plot_tpm_values()
+    plot_targeted_go(80, 121, 1)

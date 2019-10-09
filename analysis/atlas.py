@@ -5,8 +5,13 @@
 #
 # Analysis related to the Expression Atlas
 
+import functools
+import operator
+
+from constants.biomart import *
 from constants.other import *
 from helpers.atlas_parser import atlas_data
+from helpers.filemanager import biomart_go
 
 
 def isolate_by_time(data, start_time: float, end_time: float,
@@ -67,5 +72,35 @@ def general_statistics():
     del d[EXP_ATLAS_GENE_NAME]
 
 
+def go_distribution(by, start_time, end_time, tpm_cutoff, strict=False):
+    go = biomart_go()
+    atlas = atlas_data()
+    atlas = (isolate_by_time(atlas,
+                             start_time,
+                             end_time,
+                             tpm_cutoff,
+                             strict=strict)[EXP_ATLAS_GENE_ID].values)
+
+    go = (go[go[BIOMART_GENE_ID]
+          .isin(atlas)][[by, BIOMART_GENE_NAME]]
+          .dropna()
+          .groupby(by)
+          .agg([(BIOMART_GENE_NAME, lambda x: [y for y in x]),
+                ("count", "count")])
+          .sort_values((BIOMART_GENE_NAME, "count"), ascending=False))
+
+    # Flatten the multi index columns
+    go.columns = go.columns.map(lambda x: x[1] if len(x[1]) != 0 else x[0])
+    go = go.reset_index()
+    return go
+
+
+def get_annotated_genes(start, end, tpm):
+    d = go_distribution(BIOMART_GO_NAME, start, end, tpm, strict=True)
+    d = d[BIOMART_GENE_NAME].values
+    d = list(set(functools.reduce(operator.iconcat, d, [])))
+    print(d)
+
+
 def run():
-    general_statistics()
+    get_annotated_genes(5, 12, 1)
