@@ -13,7 +13,7 @@ import numpy as np
 from SecretColors import Palette, ColorMap
 from SecretPlots import *
 
-from analysis.atlas import isolate_by_time, go_distribution
+from analysis.atlas import isolate_by_time, get_go_terms
 from constants.biomart import *
 from constants.other import *
 from helpers.atlas_parser import atlas_data
@@ -101,8 +101,7 @@ def plot_targeted_go(start, end, tpm):
     by = BIOMART_GO_NAME
     p = Palette()
     no_of_genes = 30
-    go = go_distribution(BIOMART_GO_NAME, start, end, tpm,
-                         strict=True).head(no_of_genes)
+    go = get_go_terms(GO_PROCESS, start, end, tpm_cutoff=tpm).head(no_of_genes)
 
     bar = (BarPlot(go["count"].values)
            .change_orientation("y")
@@ -119,8 +118,8 @@ def plot_targeted_go(start, end, tpm):
                                                                         start,
                                                                         end)
     bar.ax.set_title(title)
-    bar.show(tight=True)
+    bar.show()
 
 
 def run():
-    plot_targeted_go(80, 121, 1)
+    plot_targeted_go(5, 10, 1)

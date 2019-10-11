@@ -80,6 +80,18 @@ def zfin_anatomy():
     return get("anatomy", "zfin")
 
 
+def zfin_pattern():
+    return get("pattern", "zfin")
+
+
+def zfin_assay():
+    return get("assay", "zfin")
+
+
+def zfin_wt_lines():
+    return get("fish", "zfin")
+
+
 def expression_atlas():
     return get("atlas", "atlas")
 

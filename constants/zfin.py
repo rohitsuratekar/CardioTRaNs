@@ -41,3 +41,31 @@ ZFIN_ONT_STAGE_OBO_ID = "Stage OBO ID"
 ZFIN_ONT_STAGE_NAME = "Stage Name"
 ZFIN_ONT_BEGIN_HOUR = "Begin Hours"
 ZFIN_ONT_END_HOUR = "End Hours"
+
+# All columns in xpat pattern files
+ZFIN_XPAT_RESULT_ID = "Expression Result ID"
+ZFIN_XPAT_EXPRESSION_ID = "Expression ID"
+ZFIN_XPAT_START_STAGE = "Start Stage ID"
+ZFIN_XPAT_END_STAGE = "End Stage ID"
+ZFIN_XPAT_ANATOMY_SUPER = "Anatomy Super Term ID"
+ZFIN_XPAT_ANATOMY_SUB = "Anatomy Sub Term ID"
+ZFIN_XPAT_EXPRESSION_FOUND = "Expression Found"
+
+# All columns in assay files
+ZFIN_ASSAY_GENE_ID = "Gene ID"
+ZFIN_ASSAY_GENE_SYMBOL = "Gene Symbol"
+ZFIN_ASSAY_EST_ID = "EST ID (Optional)"
+ZFIN_ASSAY_EST_SYMBOL = "EST Symbol (Optional)"
+ZFIN_ASSAY_EXP_TYPE = "Expression Type"
+ZFIN_ASSAY_EXP_TYPE_MMO_ID = "Expression Type MMO ID"
+ZFIN_ASSAY_EXPRESSION_ID = "Expression ID"
+ZFIN_ASSAY_PUBLICATION_ID = "Publication ID"
+ZFIN_ASSAY_FISH_ID = "Fish ID"
+ZFIN_ASSAY_ENVIRONMENT_ID = "Environment ID"
+ZFIN_ASSAY_PROBE_QUALITY = "Probe Quality (optional 0 - 5 rating)"
+
+# All columns in wild type lines
+ZFIN_FISH_ID = "Fish ID"
+ZFIN_FISH_NAME = "Fish Name"
+ZFIN_FISH_ABBR = "Fish Abbreviation"
+ZFIN_FISH_GENOTYPE = "Genotype ID"

@@ -6,6 +6,10 @@
 #  Biomart constants
 
 
+GO_FUNCTION = "molecular_function"
+GO_PROCESS = "biological_process"
+GO_COMPONENT = "cellular_component"
+
 BIOMART_GENE_ID = "Gene stable ID"
 BIOMART_TRANSCRIPT_ID = "Transcript stable ID"
 BIOMART_GENE_NAME = "Gene name"
@@ -14,6 +18,9 @@ BIOMART_TRANSCRIPT_SOURCE = "Source (transcript)"
 BIOMART_GO_NAME = "GO term name"
 BIOMART_GO_ACCESSION = "GO term accession"
 BIOMART_GO_DOMAIN = "GO domain"
+BIOMART_GO_EVIDENCE_CODE = "GO term evidence code"
+BIOMART_GO_SLIM_ACCESSION = "GOSlim GOA Accession(s)"
+BIOMART_GO_SLIM_DESCRIPTION = "GOSlim GOA Description"
 BIOMART_ZFIN_ID = "ZFIN ID"
 BIOMART_ZFIN_TRANSCRIPT = "ZFIN transcript name ID"
 BIOMART_PROTEIN_ID = "Protein stable ID"
