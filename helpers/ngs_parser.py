@@ -274,7 +274,7 @@ def average_data(dataframes: list, output_method: str):
 
 def compare_stringtie_salmon(genotype, time, bioproject):
     """
-    Gets both StrieTie and Salmon TPM values and compares them
+    Gets both StringTie and Salmon TPM values and compares them
 
     if multiple transcripts are found, it sums the TPM values
 

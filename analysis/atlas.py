@@ -40,6 +40,7 @@ def isolate_by_time(data, start_time: float,
         ignore = []
 
     d = data.set_index([EXP_ATLAS_GENE_NAME, EXP_ATLAS_GENE_ID]).fillna(0)
+
     for time in d.columns:
         if start_time <= time <= end_time:
             if not_expressed:
@@ -57,6 +58,7 @@ def isolate_by_time(data, start_time: float,
     d = d.sort_values(by="temp", ascending=False)
     del d["temp"]
     d = d.reset_index()
+
     return d
 
 

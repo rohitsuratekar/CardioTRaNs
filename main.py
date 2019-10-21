@@ -6,6 +6,7 @@
 # Main File to run the programs
 
 
-from analysis.controls import run
+from analysis.tpm import run
 
 run()
+

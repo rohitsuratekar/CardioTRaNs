@@ -5,10 +5,9 @@
 #
 #  All expression pattern visualization will go here
 
-import numpy as np
-from SecretPlots import BooleanPlot
 import pandas as pd
-from helpers.ngs_parser import get_rna_seq_files
+from SecretPlots import BooleanPlot
+
 
 def _plot_expression(data: pd.DataFrame, threshold):
     b = BooleanPlot(data.values.T, threshold=threshold)
@@ -25,6 +24,3 @@ def run():
     }
     d = pd.DataFrame(d)
     _plot_expression(d, 2)
-
-
-
