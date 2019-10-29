@@ -29,12 +29,10 @@ def _get_deliminator(symbol):
 
 def _parse(filename, deliminator):
     with open(filename) as f:
-
         while True:
             loc = f.tell()
             k = f.readline()
             dm = _get_deliminator(deliminator)
-
             skip = len(k.split(dm)) > 1
             if dm is None:
                 skip = True
@@ -43,9 +41,7 @@ def _parse(filename, deliminator):
         f.seek(loc)
         if dm is None:
             return pd.read_csv(f, delim_whitespace=True)
-
-        return pd.read_csv(f, delimiter=_get_deliminator(
-            deliminator))
+        return pd.read_csv(f, delimiter=dm)
 
 
 def get(term: str, database: str, status: str = "original"):
@@ -117,5 +113,7 @@ def string_info():
 
 
 def run():
-    d = string_info()
-    print(d.columns)
+    # d = string_links("temp")
+    with open("data/string/links.temp") as f:
+        for line in f:
+            print(repr(line))
