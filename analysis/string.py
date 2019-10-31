@@ -8,87 +8,147 @@
 # "temp" parameter while getting data
 
 
-from constants.string import *
-from helpers.filemanager import string_info, string_links, string_actions
 from pprint import pprint as pp
 
+import pandas as pd
 
-def get_info_mapping():
-    info = string_info()
-    info = info[[STRING_PROTEIN_EXTERNAL_ID, STRING_PREFERRED_NAME]]
-    info = info.set_index(STRING_PROTEIN_EXTERNAL_ID)
-    return info.to_dict("index")
+from constants.string import *
+from helpers.filemanager import string_info, string_links
 
 
-def map_protein_names(d, info_mapping):
-    data = d.copy()
-    item1 = STRING_PROTEIN1
-    item2 = STRING_PROTEIN2
+class Score:
+    """
+    Simple class to hold the column information
+    """
 
-    # Depending on input data, change the column names
-    if item1 not in data.columns.values:
-        item1 = STRING_ITEM1
-        item2 = STRING_ITEM2
-
-    for i in [item1, item2]:
-        data[i] = data[i].map(lambda x: info_mapping[x][STRING_PREFERRED_NAME])
-
-    return data
+    def __init__(self, name):
+        self.name = name
+        self.use = False
 
 
-def find_interactors(links_data,
-                     info_mapping,
-                     gene: str,
-                     confidence: float = 0.4):
-    # p values of confidence level are multiplied with 1000 in the database
+class NetworkFinder:
+    """
+    Class used to calculate the network from STRING database
+    """
 
-    links = links_data[links_data[STRING_EXPERIMENTS] +
-                       links_data[
-                           STRING_EXPERIMENTS_TRANSFER] >= confidence * 1000]
+    def __init__(self):
+        self._info = None
+        self._links = None
+        self._file_status = "temp"
+        self.neighborhood = Score(STRING_NEIGHBORHOOD)
+        self.neighborhood_trans = Score(STRING_NEIGHBORHOOD_TRANSFER)
+        self.fusion = Score(STRING_FUSION)
+        self.cooccurence = Score(STRING_COOCCURENCE)
+        self.homology = Score(STRING_HOMOLOGY)
+        self.coexpression = Score(STRING_COEXPRESSION)
+        self.coexpression_trans = Score(STRING_COEXPRESSION_TRANSFER)
+        self.experiments = Score(STRING_EXPERIMENTS)
+        self.experiments_trans = Score(STRING_EXPERIMENTS_TRANSFER)
+        self.text_mining = Score(STRING_TEXT_MINING)
+        self.text_mining_trans = Score(STRING_TEXT_MINING_TRANSFER)
 
-    links = links[links[STRING_COMBINED_SCORE] >= confidence * 1000]
+        self.experiments.use = True
+        self.experiments_trans.use = True
 
-    links = map_protein_names(links, info_mapping)
-    links = links[links[STRING_PROTEIN1] == gene.strip().lower()]
-    return links[STRING_PROTEIN2].values
+        self.threshold = 0.4
 
+    @property
+    def columns(self):
+        """
+        :return: List of all columns
+        """
+        return [self.neighborhood, self.neighborhood_trans, self.fusion,
+                self.cooccurence, self.homology, self.coexpression,
+                self.coexpression_trans, self.experiments,
+                self.experiments_trans, self.text_mining,
+                self.text_mining_trans]
 
-def check_actions(actions, info_mapping, item1: str, item2: str):
-    def _action_key(value):
-        if value == "inhibition":
-            return 0
-        elif value == "activation":
-            return 1
-        else:
-            return -1
+    @property
+    def ids(self):
+        """
+        :return: Dictionary or Mapping of Protein IDs (as index) and
+        preferred name (as value)
+        """
+        if self._info is None:
+            k = string_info()
+            k = pd.Series(k[STRING_PREFERRED_NAME].values, index=k[
+                STRING_PROTEIN_EXTERNAL_ID].values)
+            self._info = k.to_dict()
+        return self._info
 
-    ac = map_protein_names(actions, info_mapping)
-    ac = (ac[(ac[STRING_ITEM1] == item1) &
-             (ac[STRING_ITEM2] == item2) &
-             (ac[STRING_IS_DIRECTIONAL] == "t")])
-    acts = []
-    for index, row in ac.iterrows():
-        is_acting = row[STRING_IS_ACTING]
-        a = row[STRING_ACTION]
-        if is_acting == "t":
-            acts.append((item1, item2, _action_key(a)))
-        else:
-            acts.append((item2, item1, _action_key(a)))
-    return list(set(acts))
+    @property
+    def interactions(self) -> pd.DataFrame:
+        """
+        Protein-Protein interactions and their individual scores.
+        """
+        if self._links is None:
+            # Get data
+            self._links = string_links(self._file_status)
+            # Convert IDs to regular names
+            self._links[STRING_PROTEIN1] = self._links[STRING_PROTEIN1].map(
+                lambda x: self.ids[x])
+            self._links[STRING_PROTEIN2] = self._links[STRING_PROTEIN2].map(
+                lambda x: self.ids[x])
+
+            # Calculate temporary score for given traits
+            temp = "temp"
+            self._links[temp] = 0
+            for c in self.columns:
+                if c.use:
+                    self._links[temp] = self._links[temp] + self._links[c.name]
+
+            # Take only entries which have more score than the user set
+            # threshold (database values are multiplied by 1000)
+            self._links = (self._links[
+                self._links[temp] >= self.threshold * 1000].reset_index(
+                drop=True))
+
+            # Remove the temporary column
+            del self._links[temp]
+
+        return self._links
+
+    def find_interactors(self, gene: str):
+        """
+        Finds interacting proteins with given settings
+        :param gene: Gene name
+        :return: List of interacting partners
+        """
+        data = self.interactions[
+            self.interactions[STRING_PROTEIN1] == gene.strip().lower()]
+        return list(data[STRING_PROTEIN2].values)
+
+    def generate_network(self, genes, *, level: int = 1):
+        # Sanity check
+        if level < 1 or type(level) != int:
+            raise Exception(
+                "Invalid Level. Please use integers greater than 0")
+        # if only single gene is given, convert it into a list
+        if type(genes) == str:
+            genes = [genes]
+        net_stat = []
+        all_genes = []
+        secondary_genes = []
+        # Start network expansion
+        for i in range(level):
+            temp = []
+            if len(net_stat) == 0:
+                secondary_genes = genes
+            for g in secondary_genes:
+                if g not in all_genes:
+                    links = self.find_interactors(g)
+                    net_stat.append((g, links))
+                    all_genes.append(g)
+                    temp.extend(links)
+            secondary_genes = temp
+            all_genes = list(set(all_genes))
+
+        return net_stat
 
 
 def run():
-    gene = "nkx2.5"
-    data = string_links()
-    info = get_info_mapping()
-    names = find_interactors(data, info, gene)
-    actions = string_actions()
-    interactions = []
-    for n in names:
-        k = check_actions(actions, info, gene, n)
-        if len(k) > 0:
-            interactions.extend(k)
-        else:
-            interactions.append((gene, n, -1))
-
-    pp(interactions)
+    n = NetworkFinder()
+    n._file_status = "original"
+    # print(n.interactions)
+    k = n.generate_network("tbx5a", level=3)
+    pp(k)
