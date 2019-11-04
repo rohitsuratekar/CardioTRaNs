@@ -6,7 +6,7 @@
 # Main File to run the programs
 
 
-from analysis.string import run
+from analysis.tpm import run
 
 run()
 

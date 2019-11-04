@@ -5,174 +5,164 @@
 #
 #  TPM analysis related functions
 
-import matplotlib.pylab as plt
+from pprint import pprint as pp
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from SecretColors import Palette
 
 from constants.boolean import *
 from constants.ngs import *
-from constants.system import *
-from helpers.ngs_parser import get_string_tie_data
+from constants.system import GENOTYPE_WT
+from helpers.ngs_parser import average_data, get_string_tie_data
 
-RANDOM_SEED = 1610
-np.random.seed(RANDOM_SEED)
+# RANDOM_SEED = 1610
+# np.random.seed(RANDOM_SEED)
+pd.options.mode.chained_assignment = None  # This needed to suppress warning
 
 
-class TPMControl:
-    def __init__(self, positive, negative):
-        self._raw_positive = positive
-        self._raw_negative = negative
-        self._positive = None
-        self._negative = None
+def get_positive_control():
+    genes = POSITIVE_SET
+    genes.extend(POSITIVE_CONTROL)
+    genes = list(set(genes))
+    np.random.shuffle(genes)
+    return genes
+
+
+def get_negative_control():
+    genes = NEGATIVE_SET
+    genes.extend(NEGATIVE_CONTROL)
+    genes = list(set(genes))
+    np.random.shuffle(genes)
+    return genes
+
+
+def get_data(hour):
+    data = get_string_tie_data(GENOTYPE_WT, hour, BIO_PROJECT_WINATA_LAB)
+    return average_data(data, OUTPUT_STRING_TIE)
+
+
+class TPMAnalysis:
+    def __init__(self):
+        self._raw_positive = get_positive_control()
+        self._raw_negative = get_negative_control()
+
+        self.test_percentage = 25
+        self.iterations = 100
+
+        self._positive_control = None
         self._positive_test = None
+        self._negative_control = None
         self._negative_test = None
-        self._all_genes = None
-        self.no_of_reserved_pos = 10
-        self.no_of_reserved_neg = 6
 
-    def _assign(self):
+    def _distribute_genes(self):
+        self._positive_test = self._raw_positive[:int(len(
+            self._raw_positive) * self.test_percentage / 100)]
+        self._positive_control = self._raw_positive[len(
+            self._positive_test):]
 
-        self._positive = (np.random.choice(self._raw_positive,
-                                           len(self._raw_positive) -
-                                           self.no_of_reserved_pos,
-                                           replace=False))
-        self._negative = (np.random.choice(self._raw_negative,
-                                           len(self._raw_negative) -
-                                           self.no_of_reserved_neg,
-                                           replace=False))
-
-        self._positive_test = [x for x in self._raw_positive if x not in
-                               self._positive]
-
-        self._negative_test = [x for x in self._raw_negative if x not in
-                               self._negative]
-
-        x = [x for x in self._positive]
-        y = [x for x in self._negative]
-        x.extend(y)
-        self._all_genes = x
+        self._negative_test = self._raw_negative[:int(len(
+            self._raw_negative) * self.test_percentage / 100)]
+        self._negative_control = self._raw_negative[len(self._negative_test):]
 
     @property
-    def positive(self):
-        if self._positive is None:
-            self._assign()
-        return self._positive
-
-    @property
-    def negative(self):
-        if self._negative is None:
-            self._assign()
-        return self._negative
+    def positive_control(self):
+        if self._positive_control is None:
+            self._distribute_genes()
+        return self._positive_control
 
     @property
     def positive_test(self):
         if self._positive_test is None:
-            self._assign()
+            self._distribute_genes()
         return self._positive_test
+
+    @property
+    def negative_control(self):
+        if self._negative_control is None:
+            self._distribute_genes()
+        return self._negative_control
 
     @property
     def negative_test(self):
         if self._negative_test is None:
-            self._assign()
+            self._distribute_genes()
         return self._negative_test
 
-    @property
-    def all_genes(self):
-        if self._all_genes is None:
-            self._assign()
-        return self._all_genes
+    @staticmethod
+    def calculate_error(data, tpm_threshold, pos_genes, neg_genes):
+        pos = data[data[STRING_GENE_NAME].isin(pos_genes)]
+        neg = data[data[STRING_GENE_NAME].isin(neg_genes)]
 
-    def error(self, pos, neg):
-        e = 0
-        for p in pos:
-            if p not in self.positive:
-                e += 1
+        pos[pos[STRING_TPM] >= tpm_threshold] = 1
+        neg[neg[STRING_TPM] >= tpm_threshold] = 1
+        pos[pos[STRING_TPM] < tpm_threshold] = 0
+        neg[neg[STRING_TPM] < tpm_threshold] = 0
 
-        for n in neg:
-            if n not in self.negative:
-                e += 1
+        pos_err = len(pos) - pos[STRING_TPM].sum()
+        neg_err = neg[STRING_TPM].sum()
+        return tpm_threshold, pos_err + neg_err, pos_err, neg_err
 
-        return e
+    def _calculate_rates(self, pos_err, neg_err):
+        true_positive = len(self.positive_test) - pos_err
+        true_negative = len(self.negative_test) - neg_err
+        false_positive = neg_err
+        false_negative = pos_err
 
+        tpr = true_positive / (true_positive + false_negative)
+        fpr = 1 - (true_negative / (true_negative + false_positive))
+        return tpr, fpr
 
-def get_data(time):
-    return get_string_tie_data(GENOTYPE_WT, time, BIO_PROJECT_WINATA_LAB)[0]
+    def analyze(self, data):
+        d = data[[STRING_GENE_NAME, STRING_TPM]]
+        errs = []
+        for t in np.linspace(0, 10, 500):
+            errs.append(self.calculate_error(d, t,
+                                             self.positive_control,
+                                             self.negative_control))
 
+        best_tpm = sorted(errs, key=lambda x: x[1])[0][0]
 
-def get_controls() -> TPMControl:
-    negative1 = NEGATIVE_SET
-    negative2 = NEGATIVE_CONTROL
-    positive1 = POSITIVE_SET
-    positive2 = POSITIVE_CONTROL
+        e = self.calculate_error(d, best_tpm,
+                                 self.positive_test,
+                                 self.negative_test)
 
-    negative2.extend(negative1)
-    positive2.extend(positive1)
+        rates = self._calculate_rates(e[2], e[3])
+        distance = np.sqrt(pow(1 - rates[0], 2) + pow(rates[1], 2))
 
-    negative = list(set(negative2))
-    positive = list(set(positive2))
-
-    return TPMControl(positive, negative)
-
-
-def calculate_error(data, control, current_tpm):
-    data = data[data[STRING_GENE_NAME].isin(control.all_genes)].reset_index(
-        drop=True)
-    data.loc[data[STRING_TPM] < current_tpm, STRING_TPM] = 0
-    data.loc[data[STRING_TPM] > current_tpm, STRING_TPM] = 1
-    positives = data[data[STRING_TPM] == 1][STRING_GENE_NAME].values
-    negatives = data[data[STRING_TPM] == 0][STRING_GENE_NAME].values
-    return control.error(positives, negatives)
+        return best_tpm, distance, rates
 
 
-def tpm_trace():
-    p = Palette(show_warning=False)
-    c = get_controls()
-    tpm_range = np.linspace(0, 40, 300)
-    colors = [p.red(), p.blue(), p.yellow()]
-    all_error = []
-    for t, col in zip([24, 48, 72], colors):
-        errors = []
-        data = get_data(t)
-        for tpm in tpm_range:
-            errors.append(calculate_error(data, c, tpm))
-        all_error.append(errors)
-        plt.plot(tpm_range, errors, color=col, label=f"{t} hpf", alpha=0.7)
+def plot_roc_curve(hour, iterations=100):
+    p = Palette()
+    data = get_data(hour)
+    values = []
+    for _ in range(iterations):
+        t = TPMAnalysis()
+        values.append(t.analyze(data))
 
-    all_error = np.asarray(all_error)
-    all_error = sum(all_error) / 3
-    plt.plot(tpm_range, all_error, color=p.black(), label="Mean Error",
-             ls="--", lw=1.5)
-    plt.ylabel("Error")
-    plt.xlabel("TPM")
-    plt.axvline(min(all_error), color=p.gray())
-    plt.legend(loc=0)
-    plt.show()
+    values = sorted(values, key=lambda m: m[1])
+    pp(values)
 
+    y = [x1[2][0] for x1 in values]
+    x = [x1[2][1] for x1 in values]
 
-def tpm_stat():
-    p = Palette(show_warning=False)
-    c = get_controls()
-    tpm_range = np.linspace(0, 40, 300)
-    colors = [p.red(), p.blue(), p.yellow()]
-    min_tpm = []
-    for _ in range(1):
-        all_error = []
-        for t, col in zip([24, 48, 72], colors):
-            errors = []
-            data = get_data(t)
-            for tpm in tpm_range:
-                errors.append(calculate_error(data, c, tpm))
-            all_error.append(errors)
-
-        all_error = np.asarray(all_error)
-        all_error = sum(all_error) / 3
-        min_tpm.append(min(all_error))
-
-    plt.hist(min_tpm, color=p.green())
-    plt.ylabel("Frequency")
-    plt.xlabel("Minimum Average TPM")
+    plt.scatter(x, y, marker="o", color=p.red())
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    plt.plot([0, 1], [0, 1], ls="--", color=p.gray())
+    plt.annotate(f"TPM={round(values[0][0], 2)}",
+                 xy=(x[0], y[0]),
+                 xytext=(x[0] + 0.1, y[0] - 0.1),
+                 arrowprops=dict(arrowstyle="->"))
+    plt.ylabel("True Positive Rate")
+    plt.xlabel("False Positive Rate")
+    plt.title(f"ROC curve at {hour} hpf")
+    plt.tight_layout()
+    plt.savefig("roc.png", type="png", dpi=300)
     plt.show()
 
 
 def run():
-    tpm_stat()
+    plot_roc_curve(24)
