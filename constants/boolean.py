@@ -23,7 +23,7 @@ BASE_GENES = ["nkx2.5", "gata4", "tbx5a", "mef2ca", "hand2"]
 POSITIVE_CONTROL = ["nkx2.5", "myl7", "myh6"]
 
 NEGATIVE_CONTROL = ["ins", "frem2a", "arr3b", "otx5", "tp63", "col6a1",
-                    "neurog1", "zic3", "otx1", "por4f2", "myog"]
+                    "neurog1", "zic3", "otx1", "pou4f2", "myog"]
 
 POSITIVE_SET = ['pabpc1a', 'rad21a', 'pdcd10a', 'acta1b', 'desma', 'vdac2',
                 'camk2g1', 'unc45b', 'atp1a1a.1', 'cfl1', 'tnni2a.4', 'mat2aa',
