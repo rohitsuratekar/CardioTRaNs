@@ -3,3 +3,4 @@ SecretPlots
 matplotlib
 pandas
 SecretColors
+scikit-learn
