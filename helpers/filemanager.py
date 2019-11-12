@@ -64,6 +64,19 @@ def get(term: str, database: str, status: str = "original"):
     return _parse(path, m[FILE_DELIMITER].values[0])
 
 
+def get_string(term: str, status, organism):
+    if organism == ORG_ZEBRAFISH:
+        return get(term, "string", status)
+    elif organism == ORG_HUMAN:
+        return get(f"h{term}", "string", status)
+    elif organism == ORG_MOUSE:
+        return get(f"m{term}", "string", status)
+    elif organism == ORG_RAT:
+        return get(f"r{term}", "string", status)
+    else:
+        raise Exception(f"Unknown organism {organism}")
+
+
 def zfin_expression():
     return get("expression", "zfin")
 
@@ -88,6 +101,15 @@ def zfin_wt_lines():
     return get("fish", "zfin")
 
 
+def zfin_ortho(organism):
+    if organism == ORG_HUMAN:
+        return get("hortho", "zfin")
+    elif organism == ORG_MOUSE:
+        return get("mortho", "zfin")
+    else:
+        raise Exception(f"Unknown organism {organism}")
+
+
 def expression_atlas():
     return get("atlas", "atlas")
 
@@ -100,16 +122,16 @@ def biomart_genes():
     return get("genes", "biomart")
 
 
-def string_links(status: str = "original"):
-    return get("links", "string", status)
+def string_links(status: str = "original", organism: str = ORG_ZEBRAFISH):
+    return get_string("links", status, organism)
 
 
-def string_actions(status: str = "original"):
-    return get("actions", "string", status)
+def string_actions(status: str = "original", organism: str = ORG_ZEBRAFISH):
+    return get_string("actions", status, organism)
 
 
-def string_info():
-    return get("info", "string")
+def string_info(organism: str = ORG_ZEBRAFISH):
+    return get_string("info", "original", organism)
 
 
 def run():

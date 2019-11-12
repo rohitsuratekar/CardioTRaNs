@@ -143,7 +143,7 @@ def plot_simple_roc(hour):
 def plot_cross_validate_roc(hour):
     t = TPMAnalysis(OUTPUT_STRING_TIE)
     p = Palette()
-    out_group = 4
+    out_group = 3
 
     samples = LeavePOut(p=out_group)
     all_fpr = []

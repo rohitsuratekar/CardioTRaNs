@@ -8,12 +8,14 @@
 # "temp" parameter while getting data
 
 
-from pprint import pprint as pp
-
 import pandas as pd
 
+from constants.other import *
 from constants.string import *
-from helpers.filemanager import string_info, string_links
+from constants.zfin import *
+from helpers.filemanager import string_info, string_links, zfin_ortho
+
+from pprint import pprint as pp
 
 
 class Score:
@@ -34,7 +36,8 @@ class NetworkFinder:
     def __init__(self):
         self._info = None
         self._links = None
-        self._file_status = "temp"
+        self._file_status = "original"
+        self.organism = ORG_ZEBRAFISH
         self.neighborhood = Score(STRING_NEIGHBORHOOD)
         self.neighborhood_trans = Score(STRING_NEIGHBORHOOD_TRANSFER)
         self.fusion = Score(STRING_FUSION)
@@ -70,7 +73,7 @@ class NetworkFinder:
         preferred name (as value)
         """
         if self._info is None:
-            k = string_info()
+            k = string_info(organism=self.organism)
             k = pd.Series(k[STRING_PREFERRED_NAME].values, index=k[
                 STRING_PROTEIN_EXTERNAL_ID].values)
             self._info = k.to_dict()
@@ -83,7 +86,8 @@ class NetworkFinder:
         """
         if self._links is None:
             # Get data
-            self._links = string_links(self._file_status)
+            self._links = string_links(self._file_status,
+                                       organism=self.organism)
             # Convert IDs to regular names
             self._links[STRING_PROTEIN1] = self._links[STRING_PROTEIN1].map(
                 lambda x: self.ids[x])
@@ -115,7 +119,8 @@ class NetworkFinder:
         :return: List of interacting partners
         """
         data = self.interactions[
-            self.interactions[STRING_PROTEIN1] == gene.strip().lower()]
+            self.interactions[STRING_PROTEIN1].str.lower() == gene.strip(
+            ).lower()]
         return list(data[STRING_PROTEIN2].values)
 
     def generate_network(self, genes, *, level: int = 1):
@@ -146,9 +151,26 @@ class NetworkFinder:
         return net_stat
 
 
+def check_homologue(data, gene_name, organism):
+    if organism == ORG_ZEBRAFISH:
+        return gene_name
+    d = data[data[ZFIN_ORTHO_GENE_SYMBOL] == gene_name.strip().lower()]
+    col = ZFIN_ORTHO_HUMAN_SYMBOL
+    if organism == ORG_MOUSE:
+        col = ZFIN_ORTHO_MOUSE_SYMBOL
+    d = list(set(d[col].values))
+    if len(d) > 1:
+        raise Exception(f"Something went wrong with {gene_name} in {organism}")
+    elif len(d) == 0:
+        raise Exception(f"No homologue information found for {gene_name} in "
+                        f"{organism}")
+    return d[0]
+
+
 def run():
     n = NetworkFinder()
-    n._file_status = "original"
-    # print(n.interactions)
-    k = n.generate_network("tbx5a", level=3)
+    n.organism = ORG_HUMAN
+    d = zfin_ortho(n.organism)
+    gene = check_homologue(d, "nfasca", n.organism)
+    k = n.generate_network(gene)
     pp(k)
