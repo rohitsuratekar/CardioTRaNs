@@ -11,7 +11,7 @@ from sklearn.model_selection import LeavePOut
 
 from constants.boolean import *
 from helpers.ngs_parser import *
-from pprint import pprint as pp
+from matplotlib.lines import Line2D
 
 RANDOM_STATE = 1989
 pd.options.mode.chained_assignment = None  # This needed to suppress warning
@@ -47,7 +47,7 @@ class TPMAnalysis:
         self.output_method = output_method
         self.min_tpm = 0
         self.max_tpm = 10
-        self.divisions = 100
+        self.divisions = 500
 
     @property
     def all_genes(self):
@@ -113,27 +113,41 @@ class TPMAnalysis:
         return np.array(fpr), np.array(tpr), thresholds
 
 
-def plot_simple_roc(hour):
-    t = TPMAnalysis(OUTPUT_STRING_TIE)
+def plot_simple_roc(hour, min_tpm=0, max_tpm=10, divisions=500):
     p = Palette()
-    fnr, tpr, thresholds = t.roc(hour)
-    threshold_index = np.argmax(tpr - fnr)
-    plt.plot([0, 1], [0, 1], ls="--", color=p.gray())
+    outputs = [OUTPUT_STRING_TIE, OUTPUT_SALMON]
+    colors = [p.red(), p.blue()]
+    for out, color in zip(outputs, colors):
+        t = TPMAnalysis(out)
+        t.divisions = divisions
+        t.min_tpm = min_tpm
+        t.max_tpm = max_tpm
+        fnr, tpr, thresholds = t.roc(hour)
+        threshold_index = np.argmax(tpr - fnr)
+        plt.plot([0, 1], [0, 1], ls="--", color=p.gray())
 
-    plt.plot(fnr, tpr, marker="o", markerfacecolor=p.white(), color=p.red())
-    plt.plot(fnr[threshold_index], tpr[threshold_index], marker="o",
-             color=p.blue())
+        plt.plot(fnr, tpr, marker="o", markerfacecolor=p.white(), color=color)
+        plt.plot(fnr[threshold_index], tpr[threshold_index], marker="o",
+                 color=color)
 
-    plt.annotate(f"TPM={round(thresholds[threshold_index], 2)}",
-                 xy=(fnr[threshold_index], tpr[threshold_index]),
-                 xytext=(
-                     fnr[threshold_index] + 0.1, tpr[threshold_index] - 0.1),
-                 arrowprops=dict(arrowstyle="->"),
-                 bbox=dict(boxstyle="round", fc=p.gray(shade=10)))
+        plt.annotate(f"TPM={round(thresholds[threshold_index], 2)}",
+                     xy=(fnr[threshold_index], tpr[threshold_index]),
+                     xytext=(
+                         fnr[threshold_index] + 0.1,
+                         tpr[threshold_index] - 0.1),
+                     arrowprops=dict(arrowstyle="->"),
+                     bbox=dict(boxstyle="round", fc=p.gray(shade=10)))
 
     plt.ylabel("True Positive Rate")
     plt.xlabel("False Positive Rate")
-    plt.title(f"ROC curve at {hour} hpf")
+    plt.title(f"ROC curve at {hour} hpf\n(Total {divisions} divisions "
+              f"between {min_tpm}-{max_tpm} tpm)")
+
+    leg = [Line2D([0], [0], ls="--", label="Random", color=p.gray())]
+    for label, color in zip(outputs, colors):
+        leg.append(Line2D([0], [0], label=label, color=color))
+    plt.legend(handles=leg, loc="lower right")
+
     plt.grid(axis="both", zorder=10, alpha=0.6)
     plt.tight_layout()
     plt.savefig("roc.png", type="png", dpi=300)
@@ -166,9 +180,9 @@ def plot_cross_validate_roc(hour):
     plt.title(f"ROC curve at {hour} hpf (out_group={out_group})")
     plt.grid(axis="both", zorder=10, alpha=0.6)
     plt.tight_layout()
-    plt.savefig("roc.png", type="png", dpi=300)
+    plt.savefig("roc_out.png", type="png", dpi=300)
     plt.show()
 
 
 def run():
-    plot_cross_validate_roc(72)
+    plot_cross_validate_roc(48)

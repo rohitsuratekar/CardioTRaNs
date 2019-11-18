@@ -14,7 +14,7 @@ from constants.other import *
 from constants.string import *
 from constants.zfin import *
 from helpers.filemanager import string_info, string_links, zfin_ortho
-
+from SecretPlots import NetworkPlot
 from pprint import pprint as pp
 
 
@@ -167,10 +167,21 @@ def check_homologue(data, gene_name, organism):
     return d[0]
 
 
+def convert_to_digital(network):
+    digital = []
+    for gene_tuple in network:
+        for g in gene_tuple[1]:
+            digital.append([gene_tuple[0], g, 1])
+    return digital
+
+
 def run():
+    gene = "ca16b"
     n = NetworkFinder()
-    n.organism = ORG_HUMAN
-    d = zfin_ortho(n.organism)
-    gene = check_homologue(d, "nfasca", n.organism)
-    k = n.generate_network(gene)
-    pp(k)
+    n.organism = ORG_ZEBRAFISH
+    k = n.generate_network(gene, level=1)
+    data = convert_to_digital(k)
+    print(data)
+    n = NetworkPlot(data)
+    n.network.node_preference = [gene]
+    n.show()
