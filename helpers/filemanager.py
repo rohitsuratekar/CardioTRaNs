@@ -134,6 +134,10 @@ def string_info(organism: str = ORG_ZEBRAFISH):
     return get_string("info", "original", organism)
 
 
+def hpa_pathology():
+    return get("pathology", "hpa")
+
+
 def run():
     # d = string_links("temp")
     with open("data/string/links.temp") as f:

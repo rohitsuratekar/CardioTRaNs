@@ -9,7 +9,7 @@
 
 
 import pandas as pd
-
+from SecretColors import Palette
 from constants.other import *
 from constants.string import *
 from constants.zfin import *
@@ -171,17 +171,26 @@ def convert_to_digital(network):
     digital = []
     for gene_tuple in network:
         for g in gene_tuple[1]:
-            digital.append([gene_tuple[0], g, 1])
+            g2 = gene_tuple[0]
+            # Remove the gene ID
+            if "ENSDARG" in str(g):
+                g = g.replace("ENSDARG", "").replace("0", "")
+            if "ENSDARG" in str(g2):
+                g2 = g2.replace("ENSDARG", "").replace("0", "")
+            digital.append([g2, g, 1])
     return digital
 
 
 def run():
-    gene = "ca16b"
+    p = Palette()
+    gene = "L1CAM"
     n = NetworkFinder()
-    n.organism = ORG_ZEBRAFISH
+    n.organism = ORG_HUMAN
     k = n.generate_network(gene, level=1)
     data = convert_to_digital(k)
     print(data)
-    n = NetworkPlot(data)
-    n.network.node_preference = [gene]
-    n.show()
+    np = NetworkPlot(data)
+    np.colors = p.gray(shade=30)
+    np.colors_mapping = {"PTPRZ1": p.violet(), "CHL1": p.green(),
+                         "PTPRG": p.blue(), "CA16": p.aqua()}
+    np.show(tight=True)
