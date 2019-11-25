@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from analysis.hpa import run
+from analysis.ngs import run
 
 run()

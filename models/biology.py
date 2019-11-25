@@ -15,6 +15,7 @@ class Gene:
         self._input_function = None
         self._future_state = None
         self._history = [self.is_expressed]
+        self._outputs = []
 
     def __bool__(self):
         return self.is_expressed
@@ -32,6 +33,13 @@ class Gene:
 
     def input(self, function: Input):
         self._input_function = function
+
+    @property
+    def outputs(self):
+        return self._outputs
+
+    def add_output(self, gene: str, link_type: int):
+        self._outputs.append([self.name, gene, link_type])
 
     def check(self):
         if self._input_function is None:

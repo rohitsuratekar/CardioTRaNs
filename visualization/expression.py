@@ -13,7 +13,6 @@ def _plot_expression(data: pd.DataFrame, threshold):
     b = BooleanPlot(data.values.T, threshold=threshold)
     b.x_labels = data.columns
     b.y_labels = data.index
-    b.add_legend()
     b.show()
 
 
