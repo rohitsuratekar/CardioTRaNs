@@ -10,12 +10,12 @@
 
 import pandas as pd
 from SecretColors import Palette
+from SecretPlots import NetworkPlot
+from collections import defaultdict
 from constants.other import *
 from constants.string import *
 from constants.zfin import *
-from helpers.filemanager import string_info, string_links, zfin_ortho
-from SecretPlots import NetworkPlot
-from pprint import pprint as pp
+from helpers.filemanager import string_info, string_links
 
 
 class Score:
@@ -181,16 +181,60 @@ def convert_to_digital(network):
     return digital
 
 
-def run():
-    p = Palette()
-    gene = "L1CAM"
+def find_connection(gene1, gene2):
     n = NetworkFinder()
-    n.organism = ORG_HUMAN
+    if len(n.find_interactors(gene1)) == 0:
+        print(f"{gene1} has no interactors in current database")
+        return
+    if len(n.find_interactors(gene2)) == 0:
+        print(f"{gene2} has no interactors in current database")
+        return
+    all_genes = list(n.ids.values())
+    back_track = defaultdict(list)
+    done_genes = []
+    next_genes = []
+    while len(all_genes) != 0:
+        if len(next_genes) == 0:
+            next_genes = [gene1]
+        else:
+            next_genes = []
+
+        tmp_list = []
+        found_gene = False
+        for gene in next_genes:
+            if gene not in done_genes:
+                k = n.find_interactors(gene)
+                if gene2 in k:
+                    found_gene = True
+                for t in k:
+                    back_track[t].append(gene)
+
+                tmp_list.extend(k)
+                done_genes.append(gene)
+                all_genes.remove(gene)
+
+        next_genes = list(set(tmp_list))
+        if found_gene:
+            break
+        print(next_genes)
+
+    print(back_track)
+
+
+def visualize_network(gene):
+    p = Palette()
+    n = NetworkFinder()
+    n.organism = ORG_ZEBRAFISH
     k = n.generate_network(gene, level=1)
     data = convert_to_digital(k)
     print(data)
     np = NetworkPlot(data)
     np.colors = p.gray(shade=30)
-    np.colors_mapping = {"PTPRZ1": p.violet(), "CHL1": p.green(),
-                         "PTPRG": p.blue(), "CA16": p.aqua()}
+    np.colors_mapping = {"ptprz1a": p.red(), "chl1a": p.green(),
+                         "ptprga": p.red(), "ca16b": p.red(),
+                         "cntn1a": p.red()}
     np.show(tight=True)
+
+
+def run():
+    find_connection("nkx2.5", "smarca4")
