@@ -221,11 +221,11 @@ def find_connection(gene1, gene2):
     print(back_track)
 
 
-def visualize_network(gene):
+def visualize_network(gene, organism, level=1):
     p = Palette()
     n = NetworkFinder()
-    n.organism = ORG_ZEBRAFISH
-    k = n.generate_network(gene, level=1)
+    n.organism = organism
+    k = n.generate_network(gene, level=level)
     data = convert_to_digital(k)
     print(data)
     np = NetworkPlot(data)
@@ -237,4 +237,5 @@ def visualize_network(gene):
 
 
 def run():
-    find_connection("nkx2.5", "smarca4")
+    # find_connection("nkx2.5", "smarca4")
+    visualize_network("ptch1", ORG_ZEBRAFISH, 1)

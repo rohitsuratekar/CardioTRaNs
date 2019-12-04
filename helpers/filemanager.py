@@ -6,7 +6,7 @@
 #  File-management system
 
 import pandas as pd
-
+import dask.dataframe as dask
 from constants.other import *
 from constants.system import FILE_MANAGER, DATA_FOLDER
 
@@ -27,12 +27,16 @@ def _get_deliminator(symbol):
         raise Exception("No such deliminator symbol found : {}".format(symbol))
 
 
-def _parse(filename, deliminator):
+def _parse(filename, deliminator, use_dask):
+    dm = _get_deliminator(deliminator)
+    if use_dask:
+        if dm is None:
+            return dask.read_csv(filename, delim_whitespace=True)
+        return dask.read_csv(filename, deliminator=dm)
     with open(filename) as f:
         while True:
             loc = f.tell()
             k = f.readline()
-            dm = _get_deliminator(deliminator)
             skip = len(k.split(dm)) > 1
             if dm is None:
                 skip = True
@@ -44,7 +48,7 @@ def _parse(filename, deliminator):
         return pd.read_csv(f, delimiter=dm)
 
 
-def get(term: str, database: str, status: str = "original"):
+def get(term: str, database: str, status: str = "original", use_dask=False):
     if status != "original":
         print("You are working with file status :{}".format(status))
     m = _manager()
@@ -61,18 +65,18 @@ def get(term: str, database: str, status: str = "original"):
                            m[FILE_FOLDER].values[0],
                            m[FILE_NAME].values[0])
 
-    return _parse(path, m[FILE_DELIMITER].values[0])
+    return _parse(path, m[FILE_DELIMITER].values[0], use_dask)
 
 
-def get_string(term: str, status, organism):
+def get_string(term: str, status, organism, use_dask=False):
     if organism == ORG_ZEBRAFISH:
-        return get(term, "string", status)
+        return get(term, "string", status, use_dask)
     elif organism == ORG_HUMAN:
-        return get(f"h{term}", "string", status)
+        return get(f"h{term}", "string", status, use_dask)
     elif organism == ORG_MOUSE:
-        return get(f"m{term}", "string", status)
+        return get(f"m{term}", "string", status, use_dask)
     elif organism == ORG_RAT:
-        return get(f"r{term}", "string", status)
+        return get(f"r{term}", "string", status, use_dask)
     else:
         raise Exception(f"Unknown organism {organism}")
 
@@ -122,12 +126,14 @@ def biomart_genes():
     return get("genes", "biomart")
 
 
-def string_links(status: str = "original", organism: str = ORG_ZEBRAFISH):
-    return get_string("links", status, organism)
+def string_links(status: str = "original", organism: str = ORG_ZEBRAFISH,
+                 use_dask=False):
+    return get_string("links", status, organism, use_dask)
 
 
-def string_actions(status: str = "original", organism: str = ORG_ZEBRAFISH):
-    return get_string("actions", status, organism)
+def string_actions(status: str = "original", organism: str = ORG_ZEBRAFISH,
+                   use_dask=False):
+    return get_string("actions", status, organism, use_dask)
 
 
 def string_info(organism: str = ORG_ZEBRAFISH):

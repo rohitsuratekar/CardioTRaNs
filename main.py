@@ -6,6 +6,6 @@
 # Main File to run the programs
 
 
-from analysis.string import run
+from analysis.clustering import run
 
 run()
