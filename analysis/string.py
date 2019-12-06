@@ -8,10 +8,12 @@
 # "temp" parameter while getting data
 
 
+from collections import defaultdict
+
 import pandas as pd
 from SecretColors import Palette
 from SecretPlots import NetworkPlot
-from collections import defaultdict
+
 from constants.other import *
 from constants.string import *
 from constants.zfin import *
@@ -227,15 +229,17 @@ def visualize_network(gene, organism, level=1):
     n.organism = organism
     k = n.generate_network(gene, level=level)
     data = convert_to_digital(k)
-    print(data)
     np = NetworkPlot(data)
+    np.node_gap = 2
+    np.node_width = 3
+    # np.add_text_options(fontsize=9)
     np.colors = p.gray(shade=30)
-    np.colors_mapping = {"ptprz1a": p.red(), "chl1a": p.green(),
-                         "ptprga": p.red(), "ca16b": p.red(),
-                         "cntn1a": p.red()}
-    np.show(tight=True)
+    np.colors_mapping = {"ptprz1a": p.blue(), "chl1a": p.green(),
+                         "ptprga": p.blue(), "ca16b": p.blue(),
+                         "cntn1a": p.blue(), gene: p.red()}
+    # np.save("network.png", dpi=300, format="png")
+    np.show()
 
 
 def run():
-    # find_connection("nkx2.5", "smarca4")
-    visualize_network("ptch1", ORG_ZEBRAFISH, 1)
+    visualize_network("ptpra", ORG_ZEBRAFISH, 1)

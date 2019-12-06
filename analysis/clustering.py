@@ -5,12 +5,16 @@
 #
 # Clustering algorithms
 
+from collections import Counter
+
 import numpy as np
 import pandas as pd
-
+from SecretColors import Palette
+from SecretPlots import NetworkPlot
 from constants.other import *
+from analysis.string import NetworkFinder, check_homologue
 from constants.string import *
-from helpers.filemanager import string_info, string_links
+from helpers.filemanager import zfin_ortho
 
 
 def get_temp_data():
@@ -18,23 +22,10 @@ def get_temp_data():
         return pd.read_csv(f, delimiter=";").values
 
 
-def get_data():
-    k = string_info(organism=ORG_ZEBRAFISH)
-    k = pd.Series(k[STRING_PREFERRED_NAME].values, index=k[
-        STRING_PROTEIN_EXTERNAL_ID].values)
-
-    links = string_links("original", organism=ORG_ZEBRAFISH, use_dask=True)
-
-    links[STRING_PROTEIN1] = links[STRING_PROTEIN1].map(lambda x: k[x],
-                                                        meta=(
-                                                            STRING_PROTEIN1,
-                                                            str))
-    links[STRING_PROTEIN2] = links[STRING_PROTEIN2].map(lambda x: k[x],
-                                                        meta=(
-                                                            STRING_PROTEIN2,
-                                                            str))
-
-    return links[[STRING_PROTEIN1, STRING_PROTEIN2]].values
+def get_data(organism=ORG_ZEBRAFISH):
+    nf = NetworkFinder()
+    nf.organism = organism
+    return nf.interactions[[STRING_PROTEIN1, STRING_PROTEIN2]].values
 
 
 def generate_cluster(data):
@@ -108,34 +99,101 @@ def calculate_distance(data, start_node):
     return all_nodes
 
 
-def find_connection(data, gene1, gene2):
+def find_shortest_connection(data, gene1, gene2):
     if gene2 not in data.flatten():
         raise Exception(f"{gene2} is not present in the database")
     d = calculate_distance(data, gene1)
-    path = []
-    next_gene = gene2
-    while True:
-        if next_gene is None:
-            break
-        ng = d[next_gene]  # type: ClusterNode
-        if ng is not None:
-            if len(ng.alternatives) > 0:
-                alt = [x[1] for x in ng.alternatives]
-                alt.append(ng.name)
-                if ng.name == gene2:
-                    path.append(ng.name)
+    all_paths = []
+
+    def _find_path(data_list, temp_ng):
+        temp_path = data_list
+        while True:
+            extra_paths = []
+            if temp_ng is None:
+                break
+            ng = d[temp_ng]  # type: ClusterNode
+            if ng is not None:
+                if len(ng.alternatives) > 0:
+                    alt = [x[1] for x in ng.alternatives]
+                    extra_paths.extend(alt)
+                    temp_path.append(ng.name)
                 else:
-                    path.append(alt)
+                    temp_path.append(ng.name)
+                temp_ng = ng.closest
             else:
-                path.append(ng.name)
-            next_gene = ng.closest
-        else:
-            path.append(ng.name)
-    path = list(reversed(path))
-    print(path)
+                temp_path.append(ng.name)
+
+            for e in extra_paths:
+                ex_path = [x for x in temp_path]
+                _find_path(ex_path, e)
+
+        temp_path = list(reversed(temp_path))
+        all_paths.append(temp_path)
+
+    _find_path([], gene2)
+    return all_paths
+
+
+def paths_to_connections(data, paths):
+    connections = []
+    for path in paths:
+        for i in range(1, len(path)):
+            start = path[i - 1]
+            end = path[i]
+            row = np.array([start, end])
+            ind = np.where(np.all(data == row, axis=1))
+            if len(data[ind]) == 0:
+                connections.append([end, start, 1])
+            else:
+                connections.append([start, end, 1])
+
+    return connections
 
 
 def run():
-    d = get_data()
-    print(d)
-    # find_connection(d, "nkx2.5", "gata5")
+    organism = ORG_MOUSE
+    p = Palette()
+    data = zfin_ortho(organism)
+    gene_counter = Counter()
+    zf_test_genes = ["mapk1", "mapk3", "ptch1", "actc1a", "actb1", "smarca5",
+                     "myh6", "spns2", "sptb", "sptan1", "akt1", "akt2",
+                     "akt3b"]
+    test_genes = []
+    for x in zf_test_genes:
+        try:
+            test_genes.append(check_homologue(data, x, organism))
+        except Exception:
+            print(f"No homologue found for {x} in {organism}")
+
+    for end_gene in test_genes:
+        d = get_data(organism)
+        # start_gene = "chl1a"
+        start_gene = "Chl1"
+        try:
+            paths = find_shortest_connection(d, start_gene, end_gene)
+        except Exception:
+            print(f"No connection found in {end_gene}")
+            continue
+        data = paths_to_connections(d, paths)
+        for d in data:
+            gene_counter.update({d[0]})
+            gene_counter.update({d[1]})
+        n = NetworkPlot(data)
+        n.max_columns = 5
+        n.node_width = 2
+        n.node_gap = 2
+        n.aspect_ratio = 1
+        n.add_text_options(fontsize=10)
+        n.node_placement = paths[0]
+        n.line_decoration = False
+        n.colors = p.gray(shade=30)
+        # n.colors_mapping = {"ptprz1a": p.blue(), "chl1a": p.green(),
+        #                     "ptprga": p.blue(), "ca16b": p.blue(),
+        #                     "cntn1a": p.blue(), end_gene: p.red()}
+        n.colors_mapping = {"Ptprz1": p.blue(), "Chl1": p.green(),
+                            "Ptprg": p.blue(), "Ca16b": p.blue(),
+                            "Cntn1": p.blue(), end_gene: p.red()}
+
+        n.save(f"network_{end_gene}.png", tight=True, dpi=300, format="png")
+
+    print(gene_counter)
