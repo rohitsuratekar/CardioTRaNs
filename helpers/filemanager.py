@@ -77,6 +77,10 @@ def get_string(term: str, status, organism):
         raise Exception(f"Unknown organism {organism}")
 
 
+def r_out():
+    return get("rout", "r")
+
+
 def zfin_expression():
     return get("expression", "zfin")
 

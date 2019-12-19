@@ -21,3 +21,12 @@ ORG_ZEBRAFISH = "zebrafish"  # Danio rerio
 ORG_HUMAN = "human"  # Homo sapiens
 ORG_MOUSE = "mouse"  # Mus musculus
 ORG_RAT = "rat"  # Rattus norvegicus
+
+# R output file constants
+R_GENES = "genes"
+R_BASE_MEAN = "baseMean"
+R_LOG2_FOLD_CHANGE = "log2FoldChange"
+R_LFCSE = "lfcSE"
+R_STAT = "stat"
+R_P_VALUE = "pvalue"
+R_PADJ = "padj"
