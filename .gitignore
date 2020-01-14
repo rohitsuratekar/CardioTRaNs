@@ -1,7 +1,2 @@
-.idea/
 *.pyc
-*.hdf5
-data/
-venv/
-plots/
-analysis/test.txt
+.idea/*
