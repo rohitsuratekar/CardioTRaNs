@@ -1,6 +1,6 @@
-numpy==1.17.4
-matplotlib==3.1.1
+numpy==1.18.1
+matplotlib==3.1.2
 pandas==0.25.3
-scikit_learn==0.21.3
+scikit_learn==0.22.1
 SecretColors==1.1.0
-SecretPlots==0.1.1
+SecretPlots==0.1.3
