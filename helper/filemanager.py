@@ -125,7 +125,7 @@ class FileManager:
                        filename: str = None) -> pd.DataFrame:
 
         # Sanity check
-        if method.strip().lower() not in ["star", "salon", "kallisto",
+        if method.strip().lower() not in ["star", "salmon", "kallisto",
                                           "stringtie"]:
             self.log.error(f"Method '{method}' is not supported by this "
                            f"pipeline yet")

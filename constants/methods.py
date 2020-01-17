@@ -31,3 +31,13 @@ KALLISTO_LENGTH = "length"
 KALLISTO_EFFECTIVE_LENGTH = "eff_length"
 KALLISTO_EST_COUNTS = "est_counts"
 KALLISTO_TPM = "tpm"
+
+# DESEq2
+
+DESEQ2_GENE_ID = "gene_id"
+DESEQ2_BASE_MEAN = "baseMean"
+DESEQ2_LOG2_CHANGE = "log2FoldChange"
+DESEQ2_LFCSE = "lfcSE"
+DESEQ2_STAT = "stat"
+DESEQ2_PVALUE = "pvalue"
+DESEQ2_PADJ = "padj"

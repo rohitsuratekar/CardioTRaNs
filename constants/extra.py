@@ -17,7 +17,7 @@ SRA_SELECTION = "selection"
 SRA_REFERENCE = "reference"
 SRA_REFERENCE_DETAILS = "ref_details"
 
-DESEQ2_SRA_ID = "sra_id"
-DESEQ2_CONDITION = "condition"
-DESEQ2_LAB = "lab"
-DESEQ2_GENOTYPE = 'genotype'
+DS_FILE_SRA_ID = "sra_id"
+DS_FILE_CONDITION = "condition"
+DS_FILE_LAB = "lab"
+DS_FILE_GENOTYPE = 'genotype'

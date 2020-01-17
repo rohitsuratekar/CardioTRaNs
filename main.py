@@ -13,7 +13,14 @@
 
 import argparse
 
-from helper import ConfigParser, FileManager
+from helper import ConfigParser
+
+
+def test():
+    from analysis.deseq2 import run
+
+    run(config)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Argument parsing for the "
@@ -36,5 +43,5 @@ if __name__ == "__main__":
     # Generate the configuration object
     config = ConfigParser(args.config)
 
-    fm = FileManager(config)
-    d = fm.extract_sra_ids(72, lab="winata")
+    # Test function
+    test()
