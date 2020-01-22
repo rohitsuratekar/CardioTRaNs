@@ -70,3 +70,7 @@ class ConfigParser:
     @property
     def deseq2_folder(self) -> str:
         return self._return_with_validation("deseq2", "data_folder")
+
+    @property
+    def biomart_id_gene(self) -> str:
+        return self._return_with_validation("biomart", "id_gene_rel")

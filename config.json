@@ -17,6 +17,9 @@
       "access": "2020-01-14"
     }
   },
+  "biomart": {
+    "id_gene_rel": "/mnt/windows/Enigma/Zebrafish/data/biomart/id_to_name_21_01_2020.tsv"
+  },
   "setup": {
     "no_of_threads": 8,
     "show_log": 1,

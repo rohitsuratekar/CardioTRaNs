@@ -118,12 +118,15 @@ class FileManager:
             self.log.info(f"Trying get data processed with LFC")
         return f"{bf}/{method.strip().lower()}.result{lfc_add}.csv"
 
-    def deseq2_results(self, method: str, *,
-                       lab: str = None,
-                       lfc: bool = False,
-                       conditions: list = None,
-                       filename: str = None) -> pd.DataFrame:
+    def _get_deseq2_count_file(self, method, lab, conditions):
+        con = sorted(conditions)
+        bf = f"{self.config.deseq2_folder}/{lab}/Analysis{con[0]}v{con[1]}"
+        return f"{bf}/{method.strip().lower()}.vst.csv"
 
+    def _sanity_check(self, method: str, *,
+                      lab: str = None,
+                      conditions: list = None,
+                      filename: str = None):
         # Sanity check
         if method.strip().lower() not in ["star", "salmon", "kallisto",
                                           "stringtie"]:
@@ -139,6 +142,40 @@ class FileManager:
                 self.log.error("Currently this pipeline handles only 2 "
                                "conditions at a time")
 
+    def deseq2_counts(self, method: str, *, lab: str = None,
+                      conditions: list = None,
+                      filename: str = None) -> pd.DataFrame:
+
+        # Sanity check
+        self._sanity_check(method, lab=lab,
+                           conditions=conditions,
+                           filename=filename)
+
+        if filename is None:
+            filename = self._get_deseq2_count_file(method, lab, conditions)
+
+        if not exists_path(filename):
+            self.log.error(
+                f"File does not exist {filename}. "
+                f"Please check if you have provided correct details.",
+                exception=FileNotFoundError)
+
+        self.log.info(f"Reading DESeq2 count data from the file {filename}")
+
+        return pd.read_csv(filename)
+
+    def deseq2_results(self, method: str, *,
+                       lab: str = None,
+                       lfc: bool = False,
+                       conditions: list = None,
+                       filename: str = None) -> pd.DataFrame:
+
+        # Sanity check
+        self._sanity_check(method, lab=lab,
+                           conditions=conditions,
+                           filename=filename)
+
+        if filename is None:
             filename = self._get_deseq2_file(method, lab, conditions, lfc)
 
         if not exists_path(filename):
