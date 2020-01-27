@@ -4,6 +4,8 @@
 #   URL: https://github.com/rohitsuratekar/CardioTRaNs
 #   Organization: Winata Lab, IIMCB, Warsaw
 #
+# All constants related to the output files
+
 
 # StringTie
 

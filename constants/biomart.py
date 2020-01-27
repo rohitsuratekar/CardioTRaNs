@@ -4,7 +4,9 @@
 #   URL: https://github.com/rohitsuratekar/CardioTRaNs
 #   Organization: Winata Lab, IIMCB, Warsaw
 #
+# All constants related to the Biomart
 
-from helper.logging import Log
-from helper.resolver import NameResolver
-from helper.utils import *
+BIOMART_GENE_ID = "Gene stable ID"
+BIOMART_GENE_NAME = "Gene name"
+BIOMART_ZFIN_ID = "ZFIN ID"
+BIOMART_ZFIN_SYMBOL = "ZFIN symbol"

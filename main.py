@@ -10,38 +10,7 @@
 #
 # Main configuration file for the project
 
-
-import argparse
-
-from helper import ConfigParser
-
-
-def test():
-    from analysis.deseq2 import run
-
-    run(config)
-
+from helper.wrappers import run
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Argument parsing for the "
-                                                 "BooleanTrans project")
-
-    parser.add_argument("-c",
-                        "--config",
-                        type=str,
-                        help="Full path of the configuration file.")
-
-    # Parse the arguments
-    args = parser.parse_args()
-    # Sanity check
-    if args.config is None:
-        raise FileNotFoundError("Configuration file not provided. Please "
-                                "provide valid config file to start the "
-                                "analysis. Example of such file is present "
-                                "at the base of this package. \nUsage: "
-                                "main.py -c /full/path/config.json")
-    # Generate the configuration object
-    config = ConfigParser(args.config)
-
-    # Test function
-    test()
+    run()
