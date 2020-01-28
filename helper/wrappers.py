@@ -18,6 +18,7 @@ from sklearn.decomposition import PCA
 
 from analysis.deseq2 import ma_plot, volcano_plot
 from constants.biomart import BIOMART_GENE_ID, BIOMART_GENE_NAME
+from constants.boolean import *
 from constants.outputs import *
 from helper.resolver import NameResolver
 
@@ -125,7 +126,7 @@ def get_unchanged_genes(nr: NameResolver):
         fn = nr.deseq2_results(method=m, lab=lab, condition=condition,
                                lfc=True)
         df = pd.read_csv(fn)
-        data = convert_id_to_gene(nr, df)
+        data = df
         data = data[data[DESEQ2_PADJ] < p_value]
         data = data[DESEQ2_LOG2_CHANGE].values
         density = gaussian_kde(data)
@@ -144,15 +145,6 @@ def get_unchanged_genes(nr: NameResolver):
     plt.tight_layout()
     plt.savefig("density.png", dpi=300, type="png")
     plt.show()
-
-
-def count_genes(nr: NameResolver, genes: list):
-    lab = "winata"
-    method = "star"
-    condition = [24, 48]
-    fn = nr.deseq2_counts(method=method, lab=lab, condition=condition)
-    data = pd.read_csv(fn)
-    print(data.head())
 
 
 def mean_sd_plot(nr: NameResolver, *, vst: bool):
@@ -196,10 +188,10 @@ def plot_volcano(nr: NameResolver):
 
 
 def plot_all_volcano(nr: NameResolver):
-    methods = ["star"]
-    conditions = [[24, 48], [48, 72]]
+    methods = ["salmon", "kallisto", "stringtie"]
+    conditions = [[30, 48], [48, 72], [30, 72]]
     max_cols = 3
-    lab = "winata"
+    lab = "hills"
 
     txt_cond = []
     data = []
@@ -241,6 +233,73 @@ def plot_all_volcano(nr: NameResolver):
     plt.tight_layout()
     plt.savefig("all_volcano.png", dpi=300, type="png")
     plt.show()
+
+
+def count_genes(nr: NameResolver):
+    lab = "winata"
+    method = "salmon"
+    condition = [24, 48]
+
+    def __assign(x):
+        if x[DESEQ2_PADJ] > 0.05:
+            return palette.gray()
+        if -1 < x[DESEQ2_LOG2_CHANGE] < 1:
+            return palette.blue()
+        else:
+            return palette.red()
+
+    # genes = list(set(INTERESTED_GENES).difference(BASE_GENES))
+    genes = HK_SALMON_WINATA
+    fn = nr.deseq2_results(method=method, lab=lab, condition=condition,
+                           lfc=True)
+    data = convert_id_to_gene(nr, pd.read_csv(fn))
+    data = data[data["gene_id"].isin(genes)]
+
+    data["color"] = data.apply(lambda x: __assign(x), axis=1)
+    data = data.sort_values(by="gene_id")
+
+    ind = range(len(data["gene_id"].values))
+    plt.barh(ind, data[DESEQ2_LOG2_CHANGE],
+             color=data["color"],
+             xerr=data[DESEQ2_LFCSE],
+             error_kw=dict(ecolor=palette.gray(shade=70), capsize=5),
+             zorder=100)
+    plt.yticks(ind, data["gene_id"])
+    plt.axvspan(-1, 1, color=palette.gray(shade=20), zorder=0)
+    plt.axvline(1, ls="--", color=palette.black(), zorder=0)
+    plt.axvline(-1, ls="--", color=palette.black(), zorder=0)
+    plt.axvline(0, color=palette.black(), zorder=100)
+    plt.grid(axis="both", ls=":", color=palette.gray(), zorder=0)
+    plt.title(f"{condition[0]} vs {condition[1]} ({method}, {lab} lab)")
+    plt.xlabel("Log$_2$ Fold Change")
+    plt.ylabel("Gene")
+    plt.tight_layout()
+    plt.savefig("genes.png", dpi=300, type="png")
+    plt.show()
+
+
+def search_constant_genes(nr: NameResolver):
+    lab = "winata"
+    method = "salmon"
+    conditions = [[24, 48], [48, 72]]
+    dfs = []
+    for con in conditions:
+        fn = nr.deseq2_results(method=method, lab=lab, condition=con, lfc=True)
+        d = pd.read_csv(fn)
+        d = d[d[DESEQ2_PADJ] < 0.05]
+        d = d[d[DESEQ2_LOG2_CHANGE] > -1]
+        d = d[d[DESEQ2_LOG2_CHANGE] < 1]
+        d = d[["gene_id", DESEQ2_LOG2_CHANGE]]
+        d = d.set_index("gene_id")
+        d = d.rename(columns={DESEQ2_LOG2_CHANGE: f"{con}"})
+        dfs.append(d)
+
+    df = pd.concat(dfs, axis=1, sort=False, join="inner").reset_index()
+    df = convert_id_to_gene(nr, df).set_index("gene_id")
+    df = df.apply(lambda x: pow(x, 2))
+    df["sum"] = df.sum(axis=1)
+    df = df.sort_values(by="sum")
+    print(df.index)
 
 
 def run():
