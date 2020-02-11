@@ -304,4 +304,4 @@ def search_constant_genes(nr: NameResolver):
 
 def run():
     nr = NameResolver("config.json")
-    plot_all_volcano(nr)
+    search_constant_genes(nr)

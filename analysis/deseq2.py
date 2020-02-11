@@ -91,9 +91,6 @@ def volcano_plot(filename: str, *,
         ax.set_xlabel("Log$_2$ Fold change")
 
 
-
-
-
 def ma_plot(filename: str, *,
             count_col: str = DESEQ2_BASE_MEAN,
             padj_col: str = DESEQ2_PADJ,
