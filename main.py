@@ -10,7 +10,7 @@
 #
 # Main configuration file for the project
 
-from helper.wrappers import run
+from analysis.genefinding import run
 
 if __name__ == "__main__":
     run()
