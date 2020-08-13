@@ -8,7 +8,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from SecretColors import Palette
-
+from scipy.stats import gmean
 from constants.biomart import BIOMART_GENE_ID, BIOMART_GENE_NAME
 from constants.boolean import *
 from constants.outputs import *
@@ -113,9 +113,88 @@ def plot_fold_change(nr: NameResolver, genes: list):
     plt.show()
 
 
+def _extract_runs(lab: str, time: int, genotype: str) -> list:
+    df = pd.read_csv("samples.csv")
+    if lab not in ["winata", "yost"]:
+        raise ValueError("Currently only 'winata' and 'yost' labs are "
+                         "supported for this analysis")
+    project = "PRJNA492280"
+    if lab == "yost":
+        project = "PRJNA407368"
+    if genotype in ["wt", "wildtype"]:
+        genotype = "wild type"
+
+    df = df[df['BioProject'] == project]
+    df = df[df['genetic_background'] == genotype]
+    df = df[df['time'] == time]
+    runs = df['Run'].values
+    if len(runs) == 0:
+        raise KeyError(f"Unable to find run for given combination of lab:"
+                       f"{lab}, time:{time}, genotype:{genotype}")
+    return runs
+
+
+def get_average_dataframe(nr: NameResolver, lab: str, time: int,
+                          genotype: str) -> pd.DataFrame:
+    method = "stringtie"
+    dfs = []
+    for r in _extract_runs(lab, time, genotype):
+        df = pd.read_csv(nr.run_output_file(r, method), sep="\t")
+        df = df.sort_values(by="TPM", ascending=False)
+        df = df.drop_duplicates(subset="Gene ID").reset_index(drop=True)
+        df = df.set_index("Gene ID")
+        dfs.append(df)
+
+    tps = [tp[["TPM"]] for tp in dfs]
+    tps = pd.concat(tps, join="inner", axis=1)
+    name = "TPM_AVG"
+    tps[name] = tps.mean(axis=1)
+    tps = tps[[name]]
+    dfs = dfs[0]
+    del dfs["TPM"]
+    dfs = pd.concat([dfs, tps], join="inner", axis=1)
+    dfs = dfs.rename(columns={name: "TPM"}).reset_index()
+    return dfs
+
+
+def calculate_geometric_mean(nr: NameResolver):
+    lab = "winata"
+    genotype = "wt"
+    cons = [24, 72]
+    w = search_constant_genes(nr, lab, "star", [cons])
+    dfs = {}
+    for c in cons:
+        df = get_average_dataframe(nr, lab, c, genotype)
+        df = df[df["Gene Name"].isin(w)].reset_index(drop=True)
+        df = df.sort_values(by="TPM", ascending=False).drop_duplicates(
+            subset="Gene Name")
+        df = df[["Gene Name", "TPM"]].set_index("Gene Name")
+        df = df[df["TPM"] > 0]
+        print(f"{c} Genes : {len(df)}")
+        dfs[c] = df
+
+    for c in dfs:
+        values = dfs[c]["TPM"].values
+        mean = round(gmean(values), 3)
+        print(f"{c} G-Mean: {mean}")
+
+
+def check_gene_expression(nr: NameResolver, genes: list):
+    lab = "winata"
+    genotype = "wt"
+    time = 72
+    # g_mean = 9.216
+    g_mean = 6.547
+    df = get_average_dataframe(nr, lab, time, genotype)
+    df = df[df["Gene Name"].isin(genes)][["Gene Name", "TPM"]].reset_index(
+        drop=True)
+    df["NORM TMP"] = round(df["TPM"] / g_mean, 2)
+    df["TPM"] = round(df["TPM"], 2)
+    print(df)
+
+
 def run():
     nr = NameResolver("config.json")
-    w = search_constant_genes(nr, "winata", "star", [[24, 72]])
-    # plot_fold_change(nr, w)
-    print(len(w))
-    # count_genes(nr)
+    genes = set(INTERESTED_GENES) - set(BASE_GENES)
+    check_gene_expression(nr, genes)
+    # print(palette.red(shade=30))

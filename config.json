@@ -4,7 +4,7 @@
   },
   "rna_seq": {
     "meta": "/mnt/windows/Enigma/Zebrafish/data/sra_details.csv",
-    "data_folder": "/mnt/os/Viper/Genome/sra"
+    "data_folder": "/mnt/windows/Enigma/Zebrafish/data/rnaseq"
   },
   "deseq2": {
     "meta": "/mnt/windows/Enigma/Zebrafish/data/deseq2_details.csv",

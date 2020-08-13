@@ -77,47 +77,20 @@ class NameResolver:
     def deseq2_folder(self) -> str:
         return self._validate("deseq2", "data_folder")
 
-    def _sra_out_file(self, sra: str, srr: str, method: str):
+    def run_output_file(self, srr: str, method: str):
         method = method.strip().lower()
         if method == "stringtie":
-            return f"{sra}/stringtie/{srr}_gene_expression.tsv"
+            return f"{self.sra_folder}/stringtie/{srr}/{srr}_gene_expression.tsv"
         elif method == "salmon":
-            return f"{sra}/salmon/quant.sf"
+            return f"{self.sra_folder}/salmon/{srr}/quant.sf"
         elif method == "kallisto":
-            return f"{sra}/kallisto/abundance.tsv"
+            return f"{self.sra_folder}/kallisto/{srr}/abundance.tsv"
         elif method == "star":
-            return f"{sra}/star/{srr}_Aligned.sortedByCoord.out.bam"
+            return f"{self.sra_folder}/star/{srr}" \
+                   f"/{srr}_Aligned.sortedByCoord.out.bam"
         else:
             self.log.error(f"Method {method} is not supported by this "
                            f"pipeline yet.")
-
-    def get_runs(self, sra):
-        meta = f"{self.sra_folder}/{sra}/{sra}_meta.json"
-        if not exists_path(meta):
-            self.log.error(f"Automatic retrieval of metadata file {meta} "
-                           f"failed. Make sure if you have used latest "
-                           f"version of CardioPipeLine to generate this "
-                           f"metadata.")
-        with open(meta) as f:
-            data = json.load(f)
-            return data["Runs"]
-
-    def mapping_output(self, method: str, sra_id: str, *, srr: str = None):
-        mt = method.strip().lower()  # Sanity check
-        runs = self.get_runs(sra_id)
-        if len(runs) > 1:
-            self.log.error(
-                f"More than 1 runs found for '{sra_id}'. Please pass run "
-                f"id with argument 'srr' to continue. E.G. "
-                f"fm.mapping_output(id, salmon,SRA_ID, srr=run_id)")
-        elif len(runs) == 0:
-            self.log.error(f"No run information found for the sra id "
-                           f"'{sra_id}' in automatically generated metadata.")
-
-        if srr is None:
-            srr = runs[0]
-
-        return f"{self.sra_folder}/{self._sra_out_file(sra_id, srr, mt)}"
 
     def _get_deseq2_folder(self, lab: str, condition: list):
         if len(condition) != 2:
