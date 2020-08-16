@@ -10,7 +10,7 @@
 #
 # Main configuration file for the project
 
-from analysis.combined import run
+from analysis.zfin import run
 
 if __name__ == "__main__":
     run()
