@@ -10,7 +10,7 @@
 #
 # Main configuration file for the project
 
-from analysis.genefinding import run
+from analysis.combined import run
 
 if __name__ == "__main__":
     run()

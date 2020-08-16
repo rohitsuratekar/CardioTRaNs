@@ -1,0 +1,10 @@
+string:
+  actions: /mnt/windows/Enigma/Zebrafish/data/string/zebrafish/7955.protein.actions.v11.0.txt
+  links: /mnt/windows/Enigma/Zebrafish/data/string/zebrafish/test.txt
+  info: /mnt/windows/Enigma/Zebrafish/data/string/zebrafish/7955.protein.info.v11.0.txt
+rnaseq:
+  stringtie: /mnt/windows/Enigma/Zebrafish/data/rnaseq/stringtie
+  salmon: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon
+  kallisto: /mnt/windows/Enigma/Zebrafish/data/rnaseq/kallisto
+biomart: /mnt/windows/Enigma/Zebrafish/data/biomart/id_to_name_15_08_2020.tsv
+

@@ -4,8 +4,13 @@
 #   URL: https://github.com/rohitsuratekar/CardioTRaNs
 #   Organization: Winata Lab, IIMCB, Warsaw
 #
-# All constants related to the output files
 
+STRING_COLUMNS = ['protein1', 'protein2', 'neighborhood',
+                  'neighborhood_transferred', 'fusion', 'cooccurence',
+                  'homology', 'coexpression', 'coexpression_transferred',
+                  'experiments', 'experiments_transferred', 'database',
+                  'database_transferred', 'textmining',
+                  'textmining_transferred', 'combined_score']
 
 # StringTie
 
@@ -43,3 +48,12 @@ DESEQ2_LFCSE = "lfcSE"
 DESEQ2_STAT = "stat"
 DESEQ2_PVALUE = "pvalue"
 DESEQ2_PADJ = "padj"
+
+# Biomart
+BIOMART_GENE_ID = 'Gene stable ID'
+BIOMART_GENE_ID_VERSION = 'Gene stable ID version'
+BIOMART_TRANSCRIPT_ID = 'Transcript stable ID'
+BIOMART_TRANSCRIPT_ID_VERSION = 'Transcript stable ID version'
+BIOMART_GENE_NAME = 'Gene name'
+BIOMART_ZFIN_ID = 'ZFIN ID'
+BIOMART_ZFIN_SYMBOL = 'ZFIN symbol'

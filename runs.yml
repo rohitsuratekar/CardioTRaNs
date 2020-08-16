@@ -1,0 +1,110 @@
+PRJNA407368:
+  SRR6039671:
+    genotype: wt
+    time: 60
+  SRR6039672:
+    genotype: wt
+    time: 54
+  SRR6039673:
+    genotype: wt
+    time: 72
+  SRR6039674:
+    genotype: wt
+    time: 66
+  SRR6039675:
+    genotype: wt
+    time: 30
+  SRR6039676:
+    genotype: wt
+    time: 36
+  SRR6039677:
+    genotype: wt
+    time: 30
+  SRR6039678:
+    genotype: wt
+    time: 36
+  SRR6039679:
+    genotype: wt
+    time: 42
+  SRR6039680:
+    genotype: wt
+    time: 48
+  SRR6039681:
+    genotype: wt
+    time: 54
+  SRR6039682:
+    genotype: wt
+    time: 60
+  SRR6039683:
+    genotype: wt
+    time: 66
+  SRR6039684:
+    genotype: wt
+    time: 72
+  SRR6039685:
+    genotype: wt
+    time: 42
+  SRR6039686:
+    genotype: wt
+    time: 48
+  SRR6039687:
+    genotype: wt
+    time: 66
+  SRR6039688:
+    genotype: wt
+    time: 72
+  SRR6039689:
+    genotype: wt
+    time: 30
+  SRR6039690:
+    genotype: wt
+    time: 36
+  SRR6039691:
+    genotype: wt
+    time: 42
+  SRR6039692:
+    genotype: wt
+    time: 48
+  SRR6039693:
+    genotype: wt
+    time: 54
+  SRR6039694:
+    genotype: wt
+    time: 60
+PRJNA492280:
+  SRR7882015:
+    genotype: wt
+    time: 24
+  SRR7882016:
+    genotype: wt
+    time: 24
+  SRR7882018:
+    genotype: wt
+    time: 48
+  SRR7882019:
+    genotype: wt
+    time: 48
+  SRR7882021:
+    genotype: wt
+    time: 72
+  SRR7882022:
+    genotype: wt
+    time: 72
+  SRR7882024:
+    genotype: gata5
+    time: 72
+  SRR7882025:
+    genotype: gata5
+    time: 72
+  SRR7882027:
+    genotype: tbx5
+    time: 72
+  SRR7882028:
+    genotype: tbx5
+    time: 72
+  SRR7882030:
+    genotype: hand2
+    time: 72
+  SRR7882031:
+    genotype: hand2
+    time: 72
