@@ -68,7 +68,20 @@ def count_genes(nr: NameResolver):
     plt.show()
 
 
-def search_constant_genes(nr: NameResolver, lab, method, conditions):
+def search_constant_genes(nr: NameResolver, filename: str):
+    df = pd.read_csv(filename)
+    k = convert_id_to_gene(nr, df)
+    print(k[k["gene_id"] == "tbx5a"])
+    df = df[df[DESEQ2_PADJ] <= 0.05]
+    df = df[df[DESEQ2_LOG2_CHANGE] > -1]
+    df = df[df[DESEQ2_LOG2_CHANGE] < 1]
+    df = df[["gene_id", DESEQ2_LOG2_CHANGE]]
+    df = convert_id_to_gene(nr, df)
+    return df["gene_id"].values
+
+
+def search_constant_genes_in_multiple(nr: NameResolver, lab, method,
+                                      conditions):
     # lab = "winata"
     # method = "star"
     # conditions = [[24, 72]]
@@ -161,7 +174,7 @@ def calculate_geometric_mean(nr: NameResolver):
     lab = "winata"
     genotype = "wt"
     cons = [24, 72]
-    w = search_constant_genes(nr, lab, "star", [cons])
+    w = search_constant_genes_in_multiple(nr, lab, "star", [cons])
     dfs = {}
     for c in cons:
         df = get_average_dataframe(nr, lab, c, genotype)
@@ -181,20 +194,54 @@ def calculate_geometric_mean(nr: NameResolver):
 
 def check_gene_expression(nr: NameResolver, genes: list):
     lab = "winata"
-    genotype = "wt"
+    genotype = "tbx5"
     time = 72
-    # g_mean = 9.216
-    g_mean = 6.547
+    g_mean = 5.749  # MT
+    # g_mean = 5.241  # WT
     df = get_average_dataframe(nr, lab, time, genotype)
     df = df[df["Gene Name"].isin(genes)][["Gene Name", "TPM"]].reset_index(
         drop=True)
     df["NORM TMP"] = round(df["TPM"] / g_mean, 2)
     df["TPM"] = round(df["TPM"], 2)
     print(df)
+    df.to_csv("test", index=False)
+
+
+def geometric_mean(nr: NameResolver):
+    df_wt = get_average_dataframe(nr, "winata", 72, "wt")
+    df_mt = get_average_dataframe(nr, "winata", 72, "tbx5")
+    base = "/mnt/windows/Enigma/Zebrafish/data/deseq2/mutant/"
+    file_wt = f"{base}/AnalysisWTvsTbx5a/star.result_lfc.csv"
+    w = search_constant_genes(nr, file_wt)
+    print(f"Total: {len(w)}")
+    df_wt = df_wt[df_wt["Gene Name"].isin(w)].reset_index(drop=True)
+    df_wt = df_wt.sort_values(by="TPM", ascending=False).drop_duplicates(
+        subset="Gene Name")
+    df_wt = df_wt[["Gene Name", "TPM"]].set_index("Gene Name")
+    df_wt = df_wt[df_wt["TPM"] > 0]
+    print(f"WT Genes : {len(df_wt)}")
+
+    df_mt = df_mt[df_mt["Gene Name"].isin(w)].reset_index(drop=True)
+    df_mt = df_mt.sort_values(by="TPM", ascending=False).drop_duplicates(
+        subset="Gene Name")
+    df_mt = df_mt[["Gene Name", "TPM"]].set_index("Gene Name")
+    df_mt = df_mt[df_mt["TPM"] > 0]
+    print(f"MT Genes : {len(df_mt)}")
+
+    wt_val = df_wt["TPM"].values
+    wt_mean = round(gmean(wt_val), 3)
+    print(f"WT mean : {wt_mean}")
+
+    mt_val = df_mt["TPM"].values
+    mt_mean = round(gmean(mt_val), 3)
+    print(f"MT mean : {mt_mean}")
 
 
 def run():
     nr = NameResolver("config.json")
-    genes = set(INTERESTED_GENES) - set(BASE_GENES)
-    check_gene_expression(nr, genes)
-    # print(palette.red(shade=30))
+    genes = INTERESTED_GENES
+    # geometric_mean(nr)
+    # check_gene_expression(nr, genes)
+    base = "/mnt/windows/Enigma/Zebrafish/data/deseq2/mutant"
+    file_wt = f"{base}/AnalysiWTvsTbx5a/star.result_lfc.csv"
+    search_constant_genes(nr, file_wt)
