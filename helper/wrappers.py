@@ -7,7 +7,6 @@
 # All Wrappers
 
 import os
-import warnings
 
 import pandas as pd
 import yaml
@@ -134,13 +133,17 @@ class ZData:
         self.end_stage = None
         self.structures = []
 
-    def _apply_filters(self):
-        tmp = "Temp"
-        df = self.expression.copy()
+    @staticmethod
+    def _return_df(df: pd.DataFrame):
         df = df[[ZFIN_EXP_GENE_SYMBOL,
                  ZFIN_EXP_START_STAGE,
                  ZFIN_EXP_END_STAGE,
                  ZFIN_EXP_SUPER_STR_NAME]]
+        return df
+
+    def _apply_filters(self):
+        tmp = "Temp"
+        df = self.expression.copy()
         if self.start_stage:
             start_map = self._onto_mapping(ZFIN_ONT_STAGE_NAME,
                                            ZFIN_ONT_BEGIN_HOUR)
@@ -160,14 +163,32 @@ class ZData:
             df = df[df[ZFIN_EXP_SUPER_STR_NAME].str.contains(search_str)]
 
         df = df.reset_index(drop=True)
-        return df
+        return self._return_df(df)
+
+    def _get_full_expression_range(self):
+        """
+        Generates the minimum and maximum time-point in the expression data
+        to create the min-max strict range for each gene.
+        """
+        exp = self.expression.copy()
+        st_map = self._onto_mapping(ZFIN_ONT_STAGE_NAME, ZFIN_ONT_BEGIN_HOUR)
+        ed_map = self._onto_mapping(ZFIN_ONT_STAGE_NAME, ZFIN_ONT_END_HOUR)
+        exp[ZFIN_EXP_START_STAGE] = exp[ZFIN_EXP_START_STAGE].map(
+            lambda x: st_map[x])
+        exp[ZFIN_EXP_END_STAGE] = exp[ZFIN_EXP_END_STAGE].map(
+            lambda x: ed_map[x])
+        exp = exp.groupby(ZFIN_EXP_GENE_SYMBOL).agg({
+            ZFIN_EXP_START_STAGE: lambda x: min([y for y in x]),
+            ZFIN_EXP_END_STAGE: lambda x: max([y for y in x])})
+        exp = exp.reset_index()
+        return exp
 
     def _apply_not_expressed(self):
         tmp = "Temp"
         df = self.xpat.copy()
 
         # For strict implementation, check expression is not found in whole
-        # organism. This will also override all structure filters.
+        # organism.
         df = df[df[ZFIN_XPAT_ANATOMY_SUPER] == ZData.WHOLE_ORGANISM]
         df = df[df[ZFIN_XPAT_EXPRESSION_FOUND] == "f"]
 
@@ -184,11 +205,6 @@ class ZData:
             df = df[df[tmp] <= self.end_stage]
             del df[tmp]
 
-        if self.structures:
-            warnings.warn(F"Structure filter not applied. For strict "
-                          F"implementation of Negative genes, "
-                          F"whole organism is considered instead structures")
-
         # Extract the expression IDs and now take a file which will have
         # both expression ID and gene IDs. Filter the appropriate rows
         df = df[ZFIN_XPAT_EXPRESSION_ID].values
@@ -202,7 +218,37 @@ class ZData:
 
         # Genes which have shown not expressing at given points
         genes = xpat[ZFIN_ASSAY_GENE_SYMBOL].values
-        print(genes)
+
+        # Just to improve the quality of gene, we can do following
+        # Get genes not expressing by rejecting all genes which falls under
+        # strict expression range.
+        exp_range = self._get_full_expression_range()
+        lower_genes = []
+        upper_genes = []
+        if self.start_stage:
+            er1 = exp_range[
+                exp_range[ZFIN_EXP_END_STAGE] < self.start_stage]
+            lower_genes.extend(er1[ZFIN_EXP_GENE_SYMBOL].values)
+        if self.end_stage:
+            er2 = exp_range[exp_range[ZFIN_EXP_START_STAGE] > self.end_stage]
+            upper_genes.extend(er2[ZFIN_EXP_GENE_SYMBOL].values)
+
+        exp_genes = lower_genes + upper_genes
+        # final genes which are present in assay list (where expression is
+        # absent) as well as cross check list (where expression pattern range
+        # is outside our input time)
+        final_genes = list(set(genes).intersection(set(exp_genes)))
+        exp = self.expression.copy()
+        exp = exp[exp[ZFIN_EXP_GENE_SYMBOL].isin(final_genes)]
+
+        # Now that all genes are shortlisted, we can filter by structure
+        if self.structures:
+            search_str = "|".join(self.structures).lower().strip()
+            exp = exp[exp[ZFIN_EXP_SUPER_STR_NAME].str.contains(search_str)]
+
+        exp = exp.reset_index(drop=True)
+
+        return self._return_df(exp)
 
     @property
     def dataframe(self):

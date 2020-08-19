@@ -13,6 +13,8 @@ zfin:
   ontology: /mnt/windows/Enigma/Zebrafish/data/zfin/stage_ontology_2020.08.15.txt
   fish_lines: /mnt/windows/Enigma/Zebrafish/data/zfin/wildtypes_fish_2020.08.15.txt
   fish_xpat: /mnt/windows/Enigma/Zebrafish/data/zfin/xpat_fish_2020.08.15.txt
+atlas: /mnt/windows/Enigma/Zebrafish/data/atlas/E-ERAD-475-query-results.tpms.tsv
+
 
 
 
