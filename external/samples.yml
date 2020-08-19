@@ -1,37 +1,45 @@
-method: salmon
+method: star
 design: ~ genotype
 reference: wt
 gtf: /mnt/windows/Enigma/Zebrafish/genome/Danio_rerio.GRCz11.98.chr.gtf
 samples:
+  SRR7882015:
+    time: 24
+    genotype: wt
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882015_Aligned.sortedByCoord.out.bam
+  SRR7882016:
+    time: 24
+    genotype: wt
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882016_Aligned.sortedByCoord.out.bam
   SRR7882021:
     time: 72
     genotype: wt
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882021/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882021_Aligned.sortedByCoord.out.bam
   SRR7882022:
     time: 72
     genotype: wt
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882022/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882022_Aligned.sortedByCoord.out.bam
   SRR7882024:
     time: 72
     genotype: gata5
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882024/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882024_Aligned.sortedByCoord.out.bam
   SRR7882025:
     time: 72
     genotype: gata5
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882025/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882025_Aligned.sortedByCoord.out.bam
   SRR7882027:
     time: 72
     genotype: tbx5a
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882027/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882027_Aligned.sortedByCoord.out.bam
   SRR7882028:
     time: 72
     genotype: tbx5a
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882028/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882028_Aligned.sortedByCoord.out.bam
   SRR7882030:
     time: 72
     genotype: hand2
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882030/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882030_Aligned.sortedByCoord.out.bam
   SRR7882031:
     time: 72
     genotype: hand2
-    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/salmon/SRR7882031/quant.sf
+    input: /mnt/windows/Enigma/Zebrafish/data/rnaseq/bam_files/SRR7882031_Aligned.sortedByCoord.out.bam
